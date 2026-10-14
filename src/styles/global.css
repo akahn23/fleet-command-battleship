@@ -16,13 +16,14 @@ body {
   color: var(--parchment);
   font-family: var(--font-body);
   font-size: 16px;
-  line-height: 1.45;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
 
 h1,
 h2,
-h3 {
+h3,
+h4 {
   font-family: var(--font-display);
   letter-spacing: 0.06em;
   margin: 0;
@@ -32,9 +33,18 @@ button {
   font: inherit;
 }
 
+button:not(.cell) {
+  min-height: 40px;
+}
+
 :focus-visible {
-  outline: 3px solid var(--gold-muted);
+  outline: 3px solid var(--focus-ring);
   outline-offset: 2px;
+}
+
+::selection {
+  background: var(--bronze);
+  color: #14191d;
 }
 
 @media (prefers-reduced-motion: reduce) {

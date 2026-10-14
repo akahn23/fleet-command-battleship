@@ -96,7 +96,9 @@ Any action whose preconditions fail is **rejected**: the reducer returns the exa
 
 - The player sees their own ships, and on the enemy board only their own shots' outcomes plus fully revealed sunk ships.
 - Enemy ship positions are not rendered in the page until legitimately revealed (sunk, or game over).
-- The computer receives only a `TargetingView`: per-cell `unknown | miss | hit | sunk` for its own past shots, plus the lengths of the player's ships not yet sunk. That is the same information the human has. Ship coordinates are not part of that type.
+- The computer receives only a `TargetingView`: per-cell `unknown | miss | hit | sunk` for its own past shots, plus the lengths of the player's ships not yet sunk. Ship coordinates are not part of that type.
+- The default `huntTargetAI` follows unresolved hit runs, then checks adjacent unknown cells; when hunting, it targets the shortest remaining ship's parity and falls back to any unknown cell if needed.
+- Sunk cells are excluded from unresolved hits, so sinking one ship returns the AI to hunting while other unresolved hits remain targets.
 - The human always fires first.
 
 ### UI-only conventions
@@ -173,7 +175,8 @@ fleet-command-battleship/
 │   │   ├── rng.ts                    # seeded RNG (mulberry32)
 │   │   └── ai/
 │   │       ├── targetingView.ts      # builds the AI's legal view
-│   │       └── randomAI.ts           # M1; huntTargetAI.ts in M2
+│   │       ├── randomAI.ts           # retained random baseline
+│   │       └── huntTargetAI.ts       # default hunt-and-target opponent
 │   ├── components/
 │   │   ├── Board/ (Board.tsx, Cell.tsx, Board.css)
 │   │   ├── ships/ (ShipSprite.tsx, GreatLongship.tsx, Dragonship.tsx, ... )
@@ -402,3 +405,16 @@ M1 is complete when **all** of the following are true:
 - [ ] README: overview, vision, how to play, stack, run, test, deploy (placeholder until M4).
 - [ ] `docs/PROJECT_PLAN.md` committed. `docs/DEBUGGING_REPORT.md` contains only verified bugs found during M1 (or explicitly states none were found yet).
 - [ ] Work is delivered through reviewable PRs with meaningful commits. I demo the running game to you.
+
+---
+
+## 11. Milestone 2 delivery (PR #5)
+
+**Delivered:**
+
+- Hunt-and-target computer opponent, limited to its own shot results and remaining ship lengths.
+- Original Norse longship artwork, Nordic atmosphere, and responsive interface polish.
+- Combat effects and feedback, including fair battle logs, fleet status, and result-screen stats.
+- Reduced-motion support, covered through battle-phase effects in browser tests.
+
+Optional sound remains a future idea and is not implemented.

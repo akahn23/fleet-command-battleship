@@ -26,6 +26,7 @@ interface BoardProps {
   board: BoardModel;
   ships: ShipPlacement[];
   ghostShips?: ShipPlacement[];
+  revealSunk?: boolean;
   preview?: BoardPreview | null;
   /** Whether cell clicks are currently meaningful (e.g. it's the player's turn). */
   active: boolean;
@@ -55,6 +56,7 @@ export function Board({
   board,
   ships,
   ghostShips = [],
+  revealSunk = false,
   preview,
   active,
   describeCell,
@@ -107,6 +109,7 @@ export function Board({
             key={ship.shipId}
             placement={ship}
             variant={isShipSunk(board, ship.shipId) ? 'sunk' : 'afloat'}
+            revealSunk={revealSunk && isShipSunk(board, ship.shipId)}
           />
         ))}
         {[...shots.values()].map((shot) => {

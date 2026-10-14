@@ -187,6 +187,7 @@ export default function App({ seed, computerDelayMs = COMPUTER_TURN_DELAY_MS }: 
         testId="enemy-board"
         board={enemyBoard}
         ships={sunkShips(enemyBoard)}
+        revealSunk
         ghostShips={
           phase === 'gameOver'
             ? enemyBoard.ships.filter((ship) => !isShipSunk(enemyBoard, ship.shipId))
