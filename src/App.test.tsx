@@ -1,6 +1,7 @@
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import App from './App';
 import { createGame, formatCoord, getShip, shipCells, type Coord } from './engine';
+import { PLACEMENT_ERRORS } from './ui/messages';
 
 const SEED = 7;
 
@@ -63,6 +64,38 @@ describe('App: placement', () => {
     fireEvent.click(cell('player-board', { row: 0, col: 6 }));
     expect(screen.queryByTestId('ship-greatLongship')).not.toBeInTheDocument();
     expect(screen.getByText(/run aground/i)).toBeInTheDocument();
+  });
+
+  it('marks rotated edge previews invalid and still accepts a valid edge placement', () => {
+    renderGame();
+    const playerBoard = screen.getByTestId('player-board');
+    const rotate = screen.getByRole('button', { name: /Rotate Ship/ });
+
+    fireEvent.click(rotate);
+    fireEvent.mouseEnter(cell('player-board', { row: 7, col: 0 }));
+    const verticalPreview = playerBoard.querySelectorAll('.cell--preview-bad');
+    expect(verticalPreview.length).toBeGreaterThan(0);
+    expect([...verticalPreview].every((item) => item.classList.contains('cell--preview-bad'))).toBe(
+      true,
+    );
+    fireEvent.click(cell('player-board', { row: 7, col: 0 }));
+    expect(screen.queryByTestId('ship-greatLongship')).not.toBeInTheDocument();
+    expect(screen.getByText(PLACEMENT_ERRORS.outOfBounds('Great Longship'))).toBeInTheDocument();
+
+    fireEvent.click(rotate);
+    fireEvent.mouseEnter(cell('player-board', { row: 0, col: 6 }));
+    const horizontalPreview = playerBoard.querySelectorAll('.cell--preview-bad');
+    expect(horizontalPreview.length).toBeGreaterThan(0);
+    expect(
+      [...horizontalPreview].every((item) => item.classList.contains('cell--preview-bad')),
+    ).toBe(true);
+    fireEvent.click(cell('player-board', { row: 0, col: 6 }));
+    expect(screen.queryByTestId('ship-greatLongship')).not.toBeInTheDocument();
+    expect(screen.getByText(PLACEMENT_ERRORS.outOfBounds('Great Longship'))).toBeInTheDocument();
+
+    fireEvent.click(rotate);
+    fireEvent.click(cell('player-board', { row: 5, col: 0 }));
+    expect(screen.getByTestId('ship-greatLongship').style.gridRow).toBe('7 / span 5');
   });
 
   it('rejects an overlapping ship but allows touching ships', () => {
@@ -168,6 +201,31 @@ describe('App: battle', () => {
     ).toHaveLength(1);
   });
 
+  it('accepts only the first rapid click while the computer turn is pending', async () => {
+    renderGame(200);
+    autoPlaceAndStart();
+    const targets = [
+      { row: 0, col: 0 },
+      { row: 0, col: 1 },
+      { row: 0, col: 2 },
+    ];
+
+    for (const target of targets) fireEvent.click(cell('enemy-board', target));
+    fireEvent.click(cell('enemy-board', targets[0]!));
+
+    const enemyBoard = screen.getByTestId('enemy-board');
+    expect(enemyBoard.querySelectorAll('[data-state]:not([data-state="open"])')).toHaveLength(1);
+    expect(headline()).toBe('The enemy takes aim…');
+
+    await waitFor(() => expect(headline()).toMatch(/your turn/i));
+    expect(
+      screen.getByTestId('player-board').querySelectorAll('[data-testid="marker"]'),
+    ).toHaveLength(1);
+    expect(
+      within(screen.getByRole('list', { name: 'Battle log' })).getAllByRole('listitem'),
+    ).toHaveLength(3);
+  });
+
   it('ignores a click on a square already fired upon: no new shot, no lost turn', async () => {
     renderGame();
     autoPlaceAndStart();
@@ -215,6 +273,27 @@ describe('App: battle', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(document.querySelector('main')).not.toHaveAttribute('inert');
     expect(document.activeElement).toBe(screen.getByRole('button', { name: 'New Battle' }));
+
+    const log = screen.getByRole('list', { name: 'Battle log' });
+    const logCount = within(log).getAllByRole('listitem').length;
+    const shotCount = enemyBoard.querySelectorAll(
+      '[data-state="miss"], [data-state="hit"], [data-state="sunk"]',
+    ).length;
+    const playerMarkerCount = screen
+      .getByTestId('player-board')
+      .querySelectorAll('[data-testid="marker"]').length;
+    const openEnemyCell = enemyBoard.querySelector<HTMLButtonElement>('[data-state="open"]');
+    expect(openEnemyCell).not.toBeNull();
+    fireEvent.click(openEnemyCell!);
+    await act(() => new Promise((resolve) => setTimeout(resolve, 50)));
+    expect(openEnemyCell).toHaveAttribute('data-state', 'open');
+    expect(
+      enemyBoard.querySelectorAll('[data-state="miss"], [data-state="hit"], [data-state="sunk"]'),
+    ).toHaveLength(shotCount);
+    expect(within(log).getAllByRole('listitem')).toHaveLength(logCount);
+    expect(
+      screen.getByTestId('player-board').querySelectorAll('[data-testid="marker"]'),
+    ).toHaveLength(playerMarkerCount);
 
     fireEvent.click(screen.getByRole('button', { name: 'New Battle' }));
     expect(screen.getByRole('heading', { name: 'Muster Your Fleet' })).toBeInTheDocument();
@@ -282,5 +361,25 @@ describe('App: battle', () => {
     fireEvent.click(screen.getByRole('button', { name: 'New Battle' }));
     expect(screen.queryByRole('group', { name: 'Abandon this battle?' })).not.toBeInTheDocument();
     expect(within(screen.getByTestId('player-board')).queryAllByTestId(/^ship-/)).toHaveLength(0);
+  });
+
+  it('cancels a pending computer shot when Abandon Battle restarts', async () => {
+    renderGame(300);
+    autoPlaceAndStart();
+    fireEvent.click(cell('enemy-board', { row: 5, col: 5 }));
+    expect(headline()).toBe('The enemy takes aim…');
+
+    fireEvent.click(screen.getByRole('button', { name: 'New Battle' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Abandon Battle' }));
+    await act(() => new Promise((resolve) => setTimeout(resolve, 600)));
+
+    expect(screen.getByRole('heading', { name: 'Muster Your Fleet' })).toBeInTheDocument();
+    const playerBoard = screen.getByTestId('player-board');
+    expect(playerBoard.querySelectorAll('[data-testid="marker"]')).toHaveLength(0);
+    expect(playerBoard.querySelectorAll('[data-testid^="ship-"]')).toHaveLength(0);
+    expect(screen.getByRole('button', { name: /Rotate Ship/ })).toHaveTextContent('(horizontal)');
+    expect(
+      screen.getByRole('button', { name: /Great Longship/, pressed: true }),
+    ).toBeInTheDocument();
   });
 });
