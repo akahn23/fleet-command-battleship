@@ -151,3 +151,12 @@ describe('receiveShot', () => {
     expect(isFleetDestroyed(emptyBoard())).toBe(false);
   });
 });
+
+describe('placeShip isolation', () => {
+  it('copies the placement so later mutation of the caller object cannot move a placed ship', () => {
+    const placement = H('raider', 0, 0);
+    const board = placeShip(emptyBoard(), placement)!;
+    placement.origin.row = 9;
+    expect(board.ships[0]?.origin).toEqual({ row: 0, col: 0 });
+  });
+});

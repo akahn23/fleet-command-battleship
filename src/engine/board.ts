@@ -33,7 +33,7 @@ export function canPlaceShip(board: Board, placement: ShipPlacement): PlacementC
 /** Returns a new board with the ship added, or `null` if the placement is invalid. */
 export function placeShip(board: Board, placement: ShipPlacement): Board | null {
   if (!canPlaceShip(board, placement).ok) return null;
-  return { ...board, ships: [...board.ships, placement] };
+  return { ...board, ships: [...board.ships, { ...placement, origin: { ...placement.origin } }] };
 }
 
 export function removeShip(board: Board, shipId: ShipId): Board | null {
