@@ -71,7 +71,7 @@ for side,seed in ((0,31),(1,41)):
     mask=(y>=np.minimum(ridge,horizon+0.03)[None,:]).astype(np.float32)
     tex=fbm2d(H,W,7,seed,sx=9,sy=5)
     rim=np.exp(-np.clip(y-ridge[None,:],0,1)/0.02)*0.6
-    col=np.array([14,20,25])*(0.7+0.7*tex[...,None])+np.array([60,62,58])*rim[...,None]*0.5
+    col=np.array([24,33,39])*(0.65+0.8*tex[...,None])+np.array([88,84,72])*rim[...,None]*0.55
     m=np.asarray(Image.fromarray((mask*255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(1)),np.float32)[...,None]/255
     img=img*(1-m)+col*m
 # water
@@ -95,8 +95,9 @@ for cx in (0.205,0.232,0.775,0.81):
     streak=np.exp(-((x-cx)**2/0.00003))*np.clip((y-horizon)/0.25,0,1)*(y>horizon)*np.exp(-(y-horizon)/0.12)*0.35
     img=img+(gx+streak)[...,None]*np.array([255,150,60])*0.6
 # vignette + grain
-v=1-0.65*(((x-0.5)/0.75)**2+((y-0.45)/0.9)**2)
+v=1-0.42*(((x-0.5)/0.75)**2+((y-0.45)/0.9)**2)
 img=img*np.clip(v,0.25,1)[...,None]
+img=255*np.clip(img/255,0,1)**0.82
 img+=rng.normal(0,2.2,img.shape)
 out=Image.fromarray(np.clip(img,0,255).astype(np.uint8))
 OUT='src/assets/backdrop'

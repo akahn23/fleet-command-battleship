@@ -37,8 +37,8 @@ sunk, and ships lost.
 ## Visual assets
 
 The fjord backdrop is original procedural art generated with fixed seeds by
-`scripts/art/generate-fjord.py`, without source imagery. It is supplied as 1920px AVIF (12,156
-bytes) with WebP fallback (15,484 bytes), and 960px AVIF (5,002 bytes) with WebP fallback (5,510
+`scripts/art/generate-fjord.py`, without source imagery. It is supplied as 1920px AVIF (16,413
+bytes) with WebP fallback (19,462 bytes), and 960px AVIF (6,839 bytes) with WebP fallback (7,518
 bytes). The raven emblem is a hand-authored inline SVG inspired by the historical Viking raven
 banner.
 
