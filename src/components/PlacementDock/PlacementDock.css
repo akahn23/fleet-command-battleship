@@ -1,0 +1,92 @@
+.dock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-width: 380px;
+  width: 100%;
+}
+
+.dock__help {
+  margin: 0;
+  color: var(--parchment-dim);
+}
+
+kbd {
+  font-family: var(--font-display);
+  padding: 0 5px;
+  border: 1px solid var(--bronze);
+  border-radius: 3px;
+  color: var(--gold-muted);
+}
+
+.dock__ships {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dock__ship {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas: 'name status' 'pips status';
+  align-items: center;
+  gap: 2px var(--space-3);
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid rgba(169, 120, 63, 0.4);
+  border-radius: var(--radius);
+  background: rgba(15, 29, 38, 0.6);
+  color: var(--parchment);
+  text-align: left;
+  cursor: pointer;
+}
+
+.dock__ship:hover {
+  border-color: var(--bronze);
+}
+
+.dock__ship[aria-pressed='true'] {
+  border-color: var(--gold-muted);
+  background: rgba(169, 120, 63, 0.25);
+  box-shadow: inset 3px 0 0 var(--gold-muted);
+}
+
+.dock__ship-name {
+  grid-area: name;
+  font-family: var(--font-display);
+  font-weight: 600;
+}
+
+.dock__ship .pips {
+  grid-area: pips;
+}
+
+.dock__ship-status {
+  grid-area: status;
+  font-size: 0.85rem;
+  color: var(--parchment-dim);
+}
+
+.dock__ship-status.is-moored {
+  color: var(--valid);
+}
+
+.dock__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.dock__notice {
+  min-height: 1.45em;
+  margin: 0;
+  color: var(--gold-muted);
+}
+
+.dock__hint {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--parchment-dim);
+}

@@ -1,0 +1,40 @@
+.turn-banner {
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid rgba(169, 120, 63, 0.45);
+  border-radius: var(--radius);
+  background: linear-gradient(90deg, rgba(46, 33, 24, 0.85), rgba(29, 52, 64, 0.85));
+  text-align: center;
+}
+
+.turn-banner p {
+  margin: 0;
+}
+
+.turn-banner__headline {
+  font-family: var(--font-display);
+  font-size: clamp(1rem, 3vw, 1.3rem);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--gold-muted);
+}
+
+.turn-banner__detail {
+  margin-top: 2px;
+  color: var(--parchment-dim);
+}
+
+.turn-banner--enemy .turn-banner__headline {
+  color: #e3b0a8;
+}
+
+.turn-banner--good {
+  border-color: var(--gold-muted);
+}
+
+.turn-banner--bad {
+  border-color: var(--blood);
+}
+
+.turn-banner--bad .turn-banner__headline {
+  color: var(--invalid);
+}

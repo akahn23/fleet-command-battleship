@@ -1,0 +1,26 @@
+.ship {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  min-height: 0;
+  pointer-events: none;
+  padding: 3%;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.4));
+  transition: filter 300ms ease;
+}
+
+.ship svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.ship--sunk {
+  filter: grayscale(0.7) brightness(0.55) drop-shadow(0 1px 1px rgba(0, 0, 0, 0.5));
+}
+
+.ship--ghost {
+  opacity: 0.4;
+  filter: grayscale(0.4);
+}
