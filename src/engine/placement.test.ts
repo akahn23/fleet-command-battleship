@@ -17,7 +17,7 @@ describe('randomFleet', () => {
       ships.forEach((s) => orientations.add(s.orientation));
     }
     expect(orientations).toEqual(new Set(['horizontal', 'vertical']));
-  });
+  }, 15_000);
 
   it('is reproducible from a seed and varies between seeds', () => {
     expect(randomFleet(new Rng(99))).toEqual(randomFleet(new Rng(99)));

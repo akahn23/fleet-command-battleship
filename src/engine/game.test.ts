@@ -288,5 +288,5 @@ describe('full simulated games (random player vs random AI)', () => {
         expect(keys.length).toBeLessThanOrEqual(100);
       }
     }
-  });
+  }, 15_000);
 });

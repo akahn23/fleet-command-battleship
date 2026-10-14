@@ -1,4 +1,4 @@
-import { shipCells, shotAt, sunkShips } from '../board';
+import { shipCells, sunkShips } from '../board';
 import { BOARD_SIZE, type Board } from '../types';
 import { FLEET } from '../fleet';
 
@@ -17,9 +17,10 @@ export interface TargetingView {
 export function buildTargetingView(defender: Board): TargetingView {
   const sunk = sunkShips(defender);
   const sunkCells = new Set(sunk.flatMap(shipCells).map(({ row, col }) => row * BOARD_SIZE + col));
+  const shots = new Map(defender.shots.map((s) => [s.coord.row * BOARD_SIZE + s.coord.col, s]));
   const cells = Array.from({ length: BOARD_SIZE }, (_, row) =>
     Array.from({ length: BOARD_SIZE }, (_, col): CellKnowledge => {
-      const shot = shotAt(defender, { row, col });
+      const shot = shots.get(row * BOARD_SIZE + col);
       if (!shot) return 'unknown';
       if (shot.result === 'miss') return 'miss';
       return sunkCells.has(row * BOARD_SIZE + col) ? 'sunk' : 'hit';

@@ -1,8 +1,8 @@
-import { allCoords } from './coords';
-import { canPlaceShip } from './board';
+import { allCoords, isInBounds } from './coords';
+import { shipCells } from './board';
 import { FLEET } from './fleet';
 import type { Rng } from './rng';
-import type { Board, Orientation, ShipPlacement } from './types';
+import { BOARD_SIZE, type Orientation, type ShipPlacement } from './types';
 
 const ORIENTATIONS: Orientation[] = ['horizontal', 'vertical'];
 
@@ -11,13 +11,23 @@ const ORIENTATIONS: Orientation[] = ['horizontal', 'vertical'];
  * legal position remaining, so it never needs to retry and always terminates.
  */
 export function randomFleet(rng: Rng): ShipPlacement[] {
-  let board: Board = { ships: [], shots: [] };
+  const ships: ShipPlacement[] = [];
+  const occupied = new Set<number>();
   for (const { id } of FLEET) {
-    const options = allCoords().flatMap((origin) =>
-      ORIENTATIONS.map((orientation): ShipPlacement => ({ shipId: id, origin, orientation })),
-    );
-    const legal = options.filter((p) => canPlaceShip(board, p).ok);
-    board = { ...board, ships: [...board.ships, rng.pick(legal)] };
+    const legal: { placement: ShipPlacement; keys: number[] }[] = [];
+    for (const origin of allCoords()) {
+      for (const orientation of ORIENTATIONS) {
+        const placement: ShipPlacement = { shipId: id, origin, orientation };
+        const cells = shipCells(placement);
+        if (!cells.every(isInBounds)) continue;
+        const keys = cells.map(({ row, col }) => row * BOARD_SIZE + col);
+        if (keys.some((key) => occupied.has(key))) continue;
+        legal.push({ placement, keys });
+      }
+    }
+    const choice = rng.pick(legal);
+    choice.keys.forEach((key) => occupied.add(key));
+    ships.push(choice.placement);
   }
-  return board.ships;
+  return ships;
 }
