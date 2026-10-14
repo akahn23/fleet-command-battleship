@@ -229,9 +229,9 @@ Severity: **P0** game-breaking or wrong outcome · **P1** gameplay, AI, turn or 
   near edges shows an invalid preview and places nothing.
   - 100 seeds × 200 random placement attempts matched an independent rules checker exactly.
   - Auto-placement produced legal fleets across 1,000 seeds.
-- **Turns and combat:** 150 simulated full games tried every illegal action before each move:
-  repeated, off-board and out-of-turn shots, a stale computer move from an old game, and placement
-  actions during battle. All were rejected without changing state, and the invariants held:
+- **Turns and combat:** 150 simulated full games tried a fixed set of illegal actions before each move:
+  repeated, off-board and out-of-turn shots, a computer shot on the player's turn, a stale computer
+  move from an old game, and placement actions during battle. All were rejected without changing state, and the invariants held:
   strict alternation, unique shots, a single game-over event, the correct winner, and no shots
   after the game ended.
   - Rapid clicks fire exactly one shot.
@@ -248,13 +248,13 @@ Severity: **P0** game-breaking or wrong outcome · **P1** gameplay, AI, turn or 
 The Devin Review flag on PR #5 (reduced-motion E2E coverage stopped at placement) was a test
 coverage gap, not a bug; the battle-phase test now covers miss, hit, and sink effects.
 
-| Risk                                                                              | Safeguard                                                                                               |
-| --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| A delayed computer move from an old game lands in a restarted one                 | Each computer move is tagged with its game's ID, and the engine ignores moves from a different game     |
-| The screen lets an illegal move through (out of turn, repeat square, wrong phase) | The rules engine itself rejects every illegal action, so the rules don't rely on buttons being disabled |
-| The computer opponent "peeks" at the player's ships                               | It only receives shot results and remaining ship lengths; ship positions aren't in what it sees         |
-| Random fleet placement loops forever or produces an illegal layout                | Each ship is picked from the list of currently legal positions, with no retry loop                      |
-| A tester replays a known enemy layout in the live game                            | The `?seed=` replay hook only works in development and test builds, not production                      |
+| Risk                                                                              | Safeguard                                                                                                 |
+| --------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| A delayed computer move from an old game lands in a restarted one                 | Each computer move is tagged with its game's ID, and the engine ignores moves from a different game       |
+| The screen lets an illegal move through (out of turn, repeat square, wrong phase) | The rules engine itself rejects illegal actions itself, so the rules don't rely on buttons being disabled |
+| The computer opponent "peeks" at the player's ships                               | It only receives shot results and remaining ship lengths; ship positions aren't in what it sees           |
+| Random fleet placement loops forever or produces an illegal layout                | Each ship is picked from the list of currently legal positions, with no retry loop                        |
+| A tester replays a known enemy layout in the live game                            | The `?seed=` replay hook only works in development and test builds, not production                        |
 
 ## Known limitations (not defects)
 
