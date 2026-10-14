@@ -22,10 +22,39 @@ the bottom, so they aren't mistaken for bugs found.
 
 ## Verified defects
 
-_No defects recorded yet._
+### BUG-001 — Rules-engine tests timed out in CI
+
+| Field                  | Detail                                                                                                                                                                                                                                                |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Summary**            | Two property-style tests exceeded Vitest's 5 s default timeout on the GitHub Actions runner                                                                                                                                                           |
+| **Found by**           | CI (`verify` job on PR #2)                                                                                                                                                                                                                            |
+| **Steps to reproduce** | Run `npm test` on the CI runner at the PR #2 head before the fix                                                                                                                                                                                      |
+| **Expected vs actual** | Expected all 63 tests to pass. Actual: "randomFleet … 1,000 seeds" and "full simulated games … 300 seeds" failed with `Test timed out in 5000ms` (locally they passed, at 2.4 s and 3.6 s, so the slower runner pushed them over)                     |
+| **Root cause**         | Quadratic work in the engine: `randomFleet` re-validated each of ~180 candidate positions against every cell of every already-placed ship, and `buildTargetingView` scanned the whole shot list once for each of the 100 cells on every computer turn |
+| **Fix**                | `src/engine/placement.ts` tracks occupied cells in a `Set`; `src/engine/ai/targetingView.ts` indexes shots in a `Map` once per call. The two heavy tests also get an explicit 15 s budget so a slow runner can't cause a false failure                |
+| **Verification**       | Locally the tests dropped from 2,367 ms to 622 ms and from 3,649 ms to 1,638 ms; all 62 engine tests still pass, including the legality and fairness suites; the CI `verify` job was rerun                                                            |
+| **Reference**          | Commit `8c90bbb`, [PR #2](https://github.com/akahn23/fleet-command-battleship/pull/2)                                                                                                                                                                 |
+
+### BUG-002 — `createGame({ strategy })` silently ignored the strategy
+
+| Field                  | Detail                                                                                                                                                       |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Summary**            | `GameOptions` advertised a `strategy` field, but `createGame` discarded it                                                                                   |
+| **Found by**           | Code review (Devin Review on PR #2)                                                                                                                          |
+| **Steps to reproduce** | `createGame({ seed: 7, strategy: customAI })`, start a battle, then dispatch `COMPUTER_FIRE` through `gameReducer`                                           |
+| **Expected vs actual** | Expected `customAI` to choose the shot. Actual: `randomAI` chose it, because `gameReducer` binds its strategy when the reducer is created, not per game      |
+| **Root cause**         | Two injection points for the same thing; only `createReducer(strategy)` was wired up                                                                         |
+| **Fix**                | Removed `GameOptions.strategy` (`src/engine/game.ts`). `createReducer(strategy)` is now the single way to choose an opponent, and it survives `NEW_GAME`     |
+| **Verification**       | TypeScript now rejects the misleading call; existing `createReducer` tests in `game.test.ts` and `ai/randomAI.test.ts` confirm the injected strategy is used |
+| **Reference**          | Commit `5bb0c4d`, [PR #2](https://github.com/akahn23/fleet-command-battleship/pull/2)                                                                        |
 
 ## Risks mitigated by design (not bugs)
 
 _These are engineering risks addressed up front. They are not counted as discovered defects._
 
-_To be filled in as the corresponding safeguards land._
+| Risk                                                                                 | Safeguard                                                                                                                          | Evidence                                                                 |
+| ------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| A delayed computer move from a finished or restarted game lands in the new game      | `COMPUTER_FIRE` carries `gameId`, and the reducer discards a mismatched `gameId`                                                   | `game.test.ts`: "discards a computer move scheduled for a previous game" |
+| The UI could let an illegal action through (out of turn, repeat square, wrong phase) | The reducer rejects every illegal action and returns the identical state object, so the rules don't rely on buttons being disabled | `game.test.ts`: placement, battle-turn, and game-over suites             |
+| The computer could "peek" at the player's fleet                                      | The strategy receives only a `TargetingView` (shot outcomes + remaining ship lengths); ship coordinates aren't in that type        | `ai/targetingView.test.ts`, `ai/randomAI.test.ts` "computer fairness"    |
+| Random fleet generation might loop forever or produce invalid layouts                | Each ship is chosen from the list of all currently legal positions (no retry loop)                                                 | `placement.test.ts`: 1,000 seeds, all legal                              |
