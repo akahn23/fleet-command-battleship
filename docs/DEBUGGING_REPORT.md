@@ -61,6 +61,32 @@ the bottom, so they aren't mistaken for bugs found.
 | **Verification**       | New Playwright test "board geometry: square cells and every ship aligned to its squares" (`e2e/gameplay.spec.ts`). With the old CSS it fails with a ship edge 10.3 px off its squares; with the fix it passes on both the desktop and mobile projects |
 | **Reference**          | Commit `988d8e9`, PR 3 (themed UI)                                                                                                                                                                                                                    |
 
+### BUG-004 — One misclick on New Battle threw away a battle in progress
+
+| Field                  | Detail                                                                                                                                                                        |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Summary**            | The header's **New Battle** button is visible throughout play. Clicking it mid-battle instantly reset both fleets, every shot and the battle log                              |
+| **Found by**           | Devin Review on PR 3                                                                                                                                                          |
+| **Steps to reproduce** | Start a battle, fire a few volleys, click **New Battle** in the header                                                                                                        |
+| **Expected vs actual** | Expected a chance to back out. Actual: the game was gone with no confirmation and no undo                                                                                     |
+| **Root cause**         | `newGame` dispatched `NEW_GAME` unconditionally, whatever the phase                                                                                                           |
+| **Fix**                | During `battle`, the header asks "Abandon this battle?" with **Keep Fighting** (focused by default) and **Abandon Battle**. Placement and game over still restart immediately |
+| **Verification**       | App tests cover cancel, confirm, and the placement case where no prompt appears                                                                                               |
+| **Reference**          | Review-fix PR after PR 3                                                                                                                                                      |
+
+### BUG-005 — Keyboard focus escaped the game-over dialog
+
+| Field                  | Detail                                                                                                                                                                       |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Summary**            | With the Victory/Defeat dialog open, Tab or Shift+Tab moved focus onto the boards and buttons behind the overlay                                                             |
+| **Found by**           | Devin Review on PR 3                                                                                                                                                         |
+| **Steps to reproduce** | Finish a game, then press Shift+Tab from the focused **New Battle** button in the dialog                                                                                     |
+| **Expected vs actual** | Expected focus to stay in the dialog. Actual: focus reached hidden controls behind the backdrop                                                                              |
+| **Root cause**         | `aria-modal="true"` tells assistive technology the dialog is modal but does not stop the browser's Tab order                                                                 |
+| **Fix**                | `App` sets `inert` on `<main>` while the dialog is open. When the dialog is dismissed with **View Battlefield**, focus moves to the header's **New Battle** button           |
+| **Verification**       | The Playwright victory test presses Tab and Shift+Tab with the dialog open and checks that focus never lands inside `<main>`. With the `inert` line removed, that test fails |
+| **Reference**          | Review-fix PR after PR 3                                                                                                                                                     |
+
 ## Risks mitigated by design (not bugs)
 
 _These are engineering risks addressed up front. They are not counted as discovered defects._
