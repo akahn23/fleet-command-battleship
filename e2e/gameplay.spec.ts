@@ -42,6 +42,16 @@ async function expectShipCoversCells(page: Page, side: 'player' | 'enemy', ship:
   expect(Math.abs(shipBox.y + shipBox.height - bottom)).toBeLessThanOrEqual(1);
 }
 
+async function expectShipArtworkFillsCell(page: Page, ship: ShipPlacement) {
+  const artBox = await box(
+    board(page, 'player').getByTestId(`ship-${ship.shipId}`).getByTestId('artwork-bounds'),
+  );
+  const cellBox = await box(cell(page, 'player', shipCells(ship)[0]!));
+  const paintedCrossAxis = ship.orientation === 'horizontal' ? artBox.height : artBox.width;
+  const cellCrossAxis = ship.orientation === 'horizontal' ? cellBox.height : cellBox.width;
+  expect(paintedCrossAxis).toBeGreaterThanOrEqual(cellCrossAxis * 0.55);
+}
+
 async function expectSquareCells(page: Page, side: 'player' | 'enemy') {
   const sizes = await board(page, side)
     .locator('[data-row]')
@@ -129,12 +139,18 @@ test('board geometry: square cells and every ship aligned to its squares', async
   await page.goto(`/?seed=${SEED}`);
   await page.getByRole('button', { name: 'Auto-Place Fleet' }).click();
   await expectSquareCells(page, 'player');
-  for (const ship of autoPlacedFleet) await expectShipCoversCells(page, 'player', ship);
+  for (const ship of autoPlacedFleet) {
+    await expectShipCoversCells(page, 'player', ship);
+    await expectShipArtworkFillsCell(page, ship);
+  }
 
   await page.getByRole('button', { name: 'Start Battle' }).click();
   await expectSquareCells(page, 'enemy');
   await expectSquareCells(page, 'player');
-  for (const ship of autoPlacedFleet) await expectShipCoversCells(page, 'player', ship);
+  for (const ship of autoPlacedFleet) {
+    await expectShipCoversCells(page, 'player', ship);
+    await expectShipArtworkFillsCell(page, ship);
+  }
 });
 
 test('placement and battle remain responsive from 360px to 1440px', async ({ page }) => {
