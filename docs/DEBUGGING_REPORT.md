@@ -1,99 +1,88 @@
-# Ravenfjord — Debugging Report
+# Ravenfjord — Bugs Found and Fixed
 
-This log records **genuine defects observed during development** of Ravenfjord, each with its
-root cause, fix, and verification evidence. Nothing here is hypothetical.
+Every real defect found while building Ravenfjord is listed here, with what went wrong, why, how
+it was fixed, and how the fix was proven. Each one has a regression test or check so it can't
+quietly return. Nothing here is hypothetical: risks that were designed out in advance are listed
+separately at the end.
 
-Risks that were anticipated and designed out _before_ they could occur are listed separately at
-the bottom, so they aren't mistaken for bugs found.
+| ID      | Bug                                                      | Found by           | Fixed in                                                                       |
+| ------- | -------------------------------------------------------- | ------------------ | ------------------------------------------------------------------------------ |
+| BUG-001 | Rules-engine tests timed out in CI                       | GitHub Actions CI  | `8c90bbb`, [PR #2](https://github.com/akahn23/fleet-command-battleship/pull/2) |
+| BUG-002 | `createGame({ strategy })` silently ignored the strategy | Code review, PR #2 | `5bb0c4d`, [PR #2](https://github.com/akahn23/fleet-command-battleship/pull/2) |
+| BUG-003 | Ships pushed their board rows out of alignment           | Screenshot review  | `988d8e9`, [PR #3](https://github.com/akahn23/fleet-command-battleship/pull/3) |
+| BUG-004 | One misclick on New Battle threw away a battle           | Code review, PR #3 | `3968a75`, [PR #4](https://github.com/akahn23/fleet-command-battleship/pull/4) |
+| BUG-005 | Keyboard focus escaped the game-over dialog              | Code review, PR #3 | `3968a75`, [PR #4](https://github.com/akahn23/fleet-command-battleship/pull/4) |
+| BUG-006 | Changing a placement after placing it moved the ship     | Code review, PR #2 | `778af09`, [PR #2](https://github.com/akahn23/fleet-command-battleship/pull/2) |
 
-## How entries are recorded
+## BUG-001 — Rules-engine tests timed out in CI
 
-| Field                  | Meaning                                                 |
-| ---------------------- | ------------------------------------------------------- |
-| **ID**                 | `BUG-NNN`, assigned in order of discovery               |
-| **Summary**            | One-line description                                    |
-| **Found by**           | Unit test, browser test, manual play, CI, or review     |
-| **Steps to reproduce** | Minimal steps that trigger the defect                   |
-| **Expected vs actual** | What should happen vs. what did happen                  |
-| **Root cause**         | The underlying reason, not just the symptom             |
-| **Fix**                | What changed, and where                                 |
-| **Verification**       | The regression test added and/or manual check performed |
-| **Reference**          | Commit and pull request                                 |
+- **What happened:** two heavy tests (1,000 random fleets, 300 full simulated games) passed locally
+  but hit Vitest's 5-second limit on the slower GitHub Actions machines.
+- **Why:** the engine did quadratic work. Random fleet placement re-checked every candidate
+  position against every placed ship cell, and the computer's view of the board re-scanned the
+  whole shot list for each of the 100 squares.
+- **Fix:** occupied cells are tracked in a `Set` and shots are indexed in a `Map`. The two heavy
+  tests also get an explicit 15-second limit.
+- **Proof:** locally the tests got 2–4× faster (2.4 s → 0.6 s and 3.6 s → 1.6 s), and CI passes.
 
-## Verified defects
+## BUG-002 — `createGame({ strategy })` silently ignored the strategy
 
-### BUG-001 — Rules-engine tests timed out in CI
+- **What happened:** the engine offered a `strategy` option for choosing the computer opponent, but
+  the game ignored it and always used the random opponent.
+- **Why:** there were two ways to pass in a strategy, and only `createReducer(strategy)` was
+  actually connected.
+- **Fix:** removed the misleading option, so `createReducer(strategy)` is the only way to pass one.
+- **Proof:** TypeScript now rejects the old call, and tests confirm the chosen strategy fires the
+  shots, including after a restart.
 
-| Field                  | Detail                                                                                                                                                                                                                                                |
-| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Summary**            | Two property-style tests exceeded Vitest's 5 s default timeout on the GitHub Actions runner                                                                                                                                                           |
-| **Found by**           | CI (`verify` job on PR #2)                                                                                                                                                                                                                            |
-| **Steps to reproduce** | Run `npm test` on the CI runner at the PR #2 head before the fix                                                                                                                                                                                      |
-| **Expected vs actual** | Expected all 63 tests to pass. Actual: "randomFleet … 1,000 seeds" and "full simulated games … 300 seeds" failed with `Test timed out in 5000ms` (locally they passed, at 2.4 s and 3.6 s, so the slower runner pushed them over)                     |
-| **Root cause**         | Quadratic work in the engine: `randomFleet` re-validated each of ~180 candidate positions against every cell of every already-placed ship, and `buildTargetingView` scanned the whole shot list once for each of the 100 cells on every computer turn |
-| **Fix**                | `src/engine/placement.ts` tracks occupied cells in a `Set`; `src/engine/ai/targetingView.ts` indexes shots in a `Map` once per call. The two heavy tests also get an explicit 15 s budget so a slow runner can't cause a false failure                |
-| **Verification**       | Locally the tests dropped from 2,367 ms to 622 ms and from 3,649 ms to 1,638 ms; all 62 engine tests still pass, including the legality and fairness suites; the CI `verify` job was rerun                                                            |
-| **Reference**          | Commit `8c90bbb`, [PR #2](https://github.com/akahn23/fleet-command-battleship/pull/2)                                                                                                                                                                 |
+## BUG-003 — Ships pushed their board rows out of alignment
 
-### BUG-002 — `createGame({ strategy })` silently ignored the strategy
+- **What happened:** on the player's board, rows containing a ship were 5–9 px taller than empty
+  rows, so ships drifted off their squares.
+- **Why:** board rows were sized `auto`, so each ship's SVG artwork stretched the row it sat in.
+- **Fix:** the board uses ten fixed, equal rows on a square board, so nothing inside a square can
+  resize it.
+- **Proof:** a new browser test checks that every square is square and that every ship's edges
+  match its squares on desktop and mobile. With the old CSS put back, the test fails with an edge
+  10.3 px off.
 
-| Field                  | Detail                                                                                                                                                       |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Summary**            | `GameOptions` advertised a `strategy` field, but `createGame` discarded it                                                                                   |
-| **Found by**           | Code review (Devin Review on PR #2)                                                                                                                          |
-| **Steps to reproduce** | `createGame({ seed: 7, strategy: customAI })`, start a battle, then dispatch `COMPUTER_FIRE` through `gameReducer`                                           |
-| **Expected vs actual** | Expected `customAI` to choose the shot. Actual: `randomAI` chose it, because `gameReducer` binds its strategy when the reducer is created, not per game      |
-| **Root cause**         | Two injection points for the same thing; only `createReducer(strategy)` was wired up                                                                         |
-| **Fix**                | Removed `GameOptions.strategy` (`src/engine/game.ts`). `createReducer(strategy)` is now the single way to choose an opponent, and it survives `NEW_GAME`     |
-| **Verification**       | TypeScript now rejects the misleading call; existing `createReducer` tests in `game.test.ts` and `ai/randomAI.test.ts` confirm the injected strategy is used |
-| **Reference**          | Commit `5bb0c4d`, [PR #2](https://github.com/akahn23/fleet-command-battleship/pull/2)                                                                        |
+## BUG-004 — One misclick on New Battle threw away a battle in progress
 
-### BUG-003 — Ships pushed their board rows out of alignment
+- **What happened:** the header's New Battle button wiped both fleets and the whole battle at once,
+  with no confirmation.
+- **Why:** the button restarted the game no matter which phase it was in.
+- **Fix:** during a battle it asks "Abandon this battle?" with **Keep Fighting** (selected by
+  default) or **Abandon Battle**. During placement and after the game ends, it still restarts
+  immediately.
+- **Proof:** component tests cover cancelling, confirming, and the placement case with no prompt.
 
-| Field                  | Detail                                                                                                                                                                                                                                                |
-| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Summary**            | On "Your Waters", rows holding a horizontal ship were taller than empty rows, so ships and the squares beneath them drifted apart                                                                                                                     |
-| **Found by**           | Manual visual review of headless-browser screenshots (desktop 1440×900 and mobile 412×915)                                                                                                                                                            |
-| **Steps to reproduce** | Open `/?seed=7`, click **Auto-Place Fleet**, then **Start Battle**, and compare row label spacing on "Your Waters"                                                                                                                                    |
-| **Expected vs actual** | Expected ten equal square rows. Actual: rows 1–3 were 43 px apart, while rows 4 and 5 (each holding a ship) measured 48 px and 52 px                                                                                                                  |
-| **Root cause**         | `grid-template-rows` used `auto` tracks. Each ship is an SVG laid into the same grid, so its intrinsic height fed back into the track size, and a row with a ship grew taller than the others                                                         |
-| **Fix**                | `src/components/Board/Board.css`: fixed `minmax(0, 1fr)` tracks on an `aspect-ratio: 1` board, so cells are square and nothing inside a cell can resize its row                                                                                       |
-| **Verification**       | New Playwright test "board geometry: square cells and every ship aligned to its squares" (`e2e/gameplay.spec.ts`). With the old CSS it fails with a ship edge 10.3 px off its squares; with the fix it passes on both the desktop and mobile projects |
-| **Reference**          | Commit `988d8e9`, PR 3 (themed UI)                                                                                                                                                                                                                    |
+## BUG-005 — Keyboard focus escaped the game-over dialog
 
-### BUG-004 — One misclick on New Battle threw away a battle in progress
+- **What happened:** with the Victory/Defeat dialog open, Tab or Shift+Tab moved focus to the
+  boards and buttons hidden behind it.
+- **Why:** marking the dialog `aria-modal` informs screen readers but doesn't stop the browser's
+  Tab key.
+- **Fix:** the page behind the dialog is made `inert` while the dialog is open. After **View
+  Battlefield**, focus moves to the New Battle button.
+- **Proof:** the browser test presses Tab and Shift+Tab with the dialog open and checks that focus
+  never leaves it. With the fix removed, that test fails.
 
-| Field                  | Detail                                                                                                                                                                        |
-| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Summary**            | The header's **New Battle** button is visible throughout play. Clicking it mid-battle instantly reset both fleets, every shot and the battle log                              |
-| **Found by**           | Devin Review on PR 3                                                                                                                                                          |
-| **Steps to reproduce** | Start a battle, fire a few volleys, click **New Battle** in the header                                                                                                        |
-| **Expected vs actual** | Expected a chance to back out. Actual: the game was gone with no confirmation and no undo                                                                                     |
-| **Root cause**         | `newGame` dispatched `NEW_GAME` unconditionally, whatever the phase                                                                                                           |
-| **Fix**                | During `battle`, the header asks "Abandon this battle?" with **Keep Fighting** (focused by default) and **Abandon Battle**. Placement and game over still restart immediately |
-| **Verification**       | App tests cover cancel, confirm, and the placement case where no prompt appears                                                                                               |
-| **Reference**          | Review-fix PR after PR 3                                                                                                                                                      |
+## BUG-006 — Changing a placement after placing it moved the ship
 
-### BUG-005 — Keyboard focus escaped the game-over dialog
+- **What happened:** after a ship was placed, changing the original placement object (its
+  `origin`) moved the ship on the board without any rule check.
+- **Why:** `placeShip` stored the caller's object instead of a copy, which broke the engine's
+  no-hidden-changes guarantee.
+- **Fix:** `placeShip` stores its own copy of the placement and its origin.
+- **Proof:** a regression test changes the original object after placement and checks that the
+  board is unchanged.
+- **Note:** this was fixed in PR #2 at the time but only added to this report afterwards.
 
-| Field                  | Detail                                                                                                                                                                       |
-| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Summary**            | With the Victory/Defeat dialog open, Tab or Shift+Tab moved focus onto the boards and buttons behind the overlay                                                             |
-| **Found by**           | Devin Review on PR 3                                                                                                                                                         |
-| **Steps to reproduce** | Finish a game, then press Shift+Tab from the focused **New Battle** button in the dialog                                                                                     |
-| **Expected vs actual** | Expected focus to stay in the dialog. Actual: focus reached hidden controls behind the backdrop                                                                              |
-| **Root cause**         | `aria-modal="true"` tells assistive technology the dialog is modal but does not stop the browser's Tab order                                                                 |
-| **Fix**                | `App` sets `inert` on `<main>` while the dialog is open. When the dialog is dismissed with **View Battlefield**, focus moves to the header's **New Battle** button           |
-| **Verification**       | The Playwright victory test presses Tab and Shift+Tab with the dialog open and checks that focus never lands inside `<main>`. With the `inert` line removed, that test fails |
-| **Reference**          | Review-fix PR after PR 3                                                                                                                                                     |
+## Risks designed out from the start (not bugs)
 
-## Risks mitigated by design (not bugs)
-
-_These are engineering risks addressed up front. They are not counted as discovered defects._
-
-| Risk                                                                                 | Safeguard                                                                                                                          | Evidence                                                                 |
-| ------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
-| A delayed computer move from a finished or restarted game lands in the new game      | `COMPUTER_FIRE` carries `gameId`, and the reducer discards a mismatched `gameId`                                                   | `game.test.ts`: "discards a computer move scheduled for a previous game" |
-| The UI could let an illegal action through (out of turn, repeat square, wrong phase) | The reducer rejects every illegal action and returns the identical state object, so the rules don't rely on buttons being disabled | `game.test.ts`: placement, battle-turn, and game-over suites             |
-| The computer could "peek" at the player's fleet                                      | The strategy receives only a `TargetingView` (shot outcomes + remaining ship lengths); ship coordinates aren't in that type        | `ai/targetingView.test.ts`, `ai/randomAI.test.ts` "computer fairness"    |
-| Random fleet generation might loop forever or produce invalid layouts                | Each ship is chosen from the list of all currently legal positions (no retry loop)                                                 | `placement.test.ts`: 1,000 seeds, all legal                              |
+| Risk                                                                              | Safeguard                                                                                               |
+| --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| A delayed computer move from an old game lands in a restarted one                 | Each computer move is tagged with its game's ID, and the engine ignores moves from a different game     |
+| The screen lets an illegal move through (out of turn, repeat square, wrong phase) | The rules engine itself rejects every illegal action, so the rules don't rely on buttons being disabled |
+| The computer opponent "peeks" at the player's ships                               | It only receives shot results and remaining ship lengths; ship positions aren't in what it sees         |
+| Random fleet placement loops forever or produces an illegal layout                | Each ship is picked from the list of currently legal positions, with no retry loop                      |
