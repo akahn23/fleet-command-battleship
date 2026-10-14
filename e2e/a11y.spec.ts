@@ -71,7 +71,7 @@ test('sunk fleet names and state labels meet 4.5:1 contrast', async ({ page }) =
       const values = color.match(/[\d.]+/g)?.map(Number) ?? [0, 0, 0, 1];
       return { r: values[0]!, g: values[1]!, b: values[2]!, a: values[3] ?? 1 };
     };
-    const luminance = ({ r, g, b }: ReturnType<typeof parse>) =>
+    const luminance = ({ r, g, b }: { r: number; g: number; b: number }) =>
       [r, g, b]
         .map((value) => {
           const channel = value / 255;
