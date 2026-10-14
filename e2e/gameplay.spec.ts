@@ -56,6 +56,36 @@ async function expectSquareCells(page: Page, side: 'player' | 'enemy') {
   }
 }
 
+async function expectMinimumCellSize(page: Page, side: 'player' | 'enemy', minimum: number) {
+  const smallest = await board(page, side)
+    .locator('[data-row]')
+    .evaluateAll((els) =>
+      Math.min(
+        ...els.map((el) => {
+          const rect = el.getBoundingClientRect();
+          return Math.min(rect.width, rect.height);
+        }),
+      ),
+    );
+  expect(smallest).toBeGreaterThanOrEqual(minimum);
+}
+
+async function expectNoHorizontalOverflow(page: Page) {
+  const overflow = await page.evaluate(
+    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+  );
+  expect(overflow).toBeLessThanOrEqual(0);
+}
+
+async function expectControlsAtLeast40px(page: Page) {
+  const smallest = await page
+    .locator('button:not(.cell)')
+    .evaluateAll((buttons) =>
+      Math.min(...buttons.map((button) => button.getBoundingClientRect().height)),
+    );
+  expect(smallest).toBeGreaterThanOrEqual(40);
+}
+
 let consoleErrors: string[] = [];
 
 test.beforeEach(({ page }) => {
@@ -107,31 +137,116 @@ test('board geometry: square cells and every ship aligned to its squares', async
   for (const ship of autoPlacedFleet) await expectShipCoversCells(page, 'player', ship);
 });
 
-test('layout fits the viewport with no horizontal scrolling', async ({ page }) => {
-  await startWithAutoPlacement(page);
-  const overflow = await page.evaluate(
-    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
-  );
-  expect(overflow).toBeLessThanOrEqual(0);
-  await expect(board(page, 'enemy')).toBeInViewport();
+test('placement and battle remain responsive from 360px to 1440px', async ({ page }) => {
+  const viewports = [
+    { width: 360, height: 740 },
+    { width: 390, height: 844 },
+    { width: 768, height: 1024 },
+    { width: 1024, height: 900 },
+    { width: 1440, height: 900 },
+  ];
+
+  await page.goto(`/?seed=${SEED}`);
+  await page.getByRole('button', { name: 'Auto-Place Fleet' }).click();
+  for (const viewport of viewports) {
+    await page.setViewportSize(viewport);
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await expectNoHorizontalOverflow(page);
+    await expectMinimumCellSize(page, 'player', 28);
+    await expectControlsAtLeast40px(page);
+  }
+
+  await page.getByRole('button', { name: 'Start Battle' }).click();
+  await expect(headline(page)).toHaveText(/your turn/i);
+  const sections = page.locator('.battle-layout > .board-section');
+  await expect(sections.nth(0)).toContainText('Enemy Waters');
+  await expect(sections.nth(1)).toContainText('Your Waters');
+  for (const viewport of viewports) {
+    await page.setViewportSize(viewport);
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await expectNoHorizontalOverflow(page);
+    await expect(board(page, 'enemy')).toBeInViewport();
+    await expectMinimumCellSize(page, 'enemy', 28);
+    await expectMinimumCellSize(page, 'player', 28);
+    await expectControlsAtLeast40px(page);
+  }
 });
 
-test('reduced motion disables the fjord mist and water animations', async ({ page }) => {
+test('battle effects show splashes, hit flames, and sunk ships', async ({ page }) => {
+  await startWithAutoPlacement(page);
+  const occupied = new Set(enemyFleet.flatMap(shipCells).map(({ row, col }) => `${row},${col}`));
+  const miss = [...Array(100).keys()]
+    .map((index) => ({ row: Math.floor(index / 10), col: index % 10 }))
+    .find(({ row, col }) => !occupied.has(`${row},${col}`))!;
+  const ship = enemyFleet[0]!;
+  const coords = shipCells(ship);
+
+  await fireAt(page, miss);
+  await expect(board(page, 'enemy').getByTestId('splash-effect')).toHaveCount(1);
+  await fireAt(page, coords[0]!);
+  await expect(board(page, 'enemy').getByTestId('flame-marker')).toHaveCount(1);
+  await expect(board(page, 'enemy').getByTestId('hit-burst')).toHaveCount(1);
+
+  for (const coord of coords.slice(1)) await fireAt(page, coord);
+  const sunk = board(page, 'enemy').getByTestId(`ship-${ship.shipId}`);
+  await expect(sunk).toHaveAttribute('data-variant', 'sunk');
+  await expect(sunk).toHaveClass(/ship--sunk/);
+  await expect(sunk.getByTestId('sunk-smoke')).toHaveCount(1);
+});
+
+test('reduced motion leaves atmosphere and battle effects static', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  await page.goto(`/?seed=${SEED}`);
+  await startWithAutoPlacement(page);
+  const occupied = new Set(enemyFleet.flatMap(shipCells).map(({ row, col }) => `${row},${col}`));
+  const miss = [...Array(100).keys()]
+    .map((index) => ({ row: Math.floor(index / 10), col: index % 10 }))
+    .find(({ row, col }) => !occupied.has(`${row},${col}`))!;
+  const ship = enemyFleet[0]!;
+  const coords = shipCells(ship);
 
-  const atmosphere = page.locator('.backdrop__mist, .board__water');
-  await expect(atmosphere).toHaveCount(4);
-  const animations = await atmosphere.evaluateAll((elements) =>
-    elements.map((element) => {
-      const style = window.getComputedStyle(element);
-      return { name: style.animationName, playState: style.animationPlayState };
-    }),
-  );
+  await fireAt(page, miss);
+  await fireAt(page, coords[0]!);
+  for (const coord of coords.slice(1)) await fireAt(page, coord);
 
-  expect(animations.every(({ name, playState }) => name === 'none' || playState === 'paused')).toBe(
-    true,
+  const enemyBoard = board(page, 'enemy');
+  await expect(enemyBoard.getByTestId('splash-effect')).toHaveCount(1);
+  await expect(enemyBoard.getByTestId('hit-burst')).toHaveCount(coords.length);
+  await expect(enemyBoard.getByTestId('flame-marker')).toHaveCount(coords.length);
+  await expect(enemyBoard.getByTestId(`ship-${ship.shipId}`)).toHaveAttribute(
+    'data-variant',
+    'sunk',
   );
+  await expect(page.locator('.board__water')).toHaveCount(2);
+  await expect(page.locator('.backdrop__mist')).toHaveCount(3);
+
+  const reducedMotionState = await page.evaluate(() => {
+    const names = (selector: string) =>
+      Array.from(
+        document.querySelectorAll(selector),
+        (element) => getComputedStyle(element).animationName,
+      );
+    const banner = document.querySelector('.turn-banner');
+    return {
+      animationNames: [
+        ...names('.board__water'),
+        ...names('.backdrop__mist'),
+        ...(banner ? [getComputedStyle(banner, '::before').animationName] : []),
+        ...names('.marker__splash'),
+        ...names('.marker__impact'),
+        ...names('.marker__flame'),
+        ...names('.ship--sunk svg'),
+        ...names('.ship__smoke'),
+      ],
+      pulseContent: banner ? getComputedStyle(banner, '::before').content : 'none',
+    };
+  });
+  expect(reducedMotionState.pulseContent).not.toBe('none');
+  expect(reducedMotionState.animationNames.length).toBeGreaterThan(0);
+  expect(reducedMotionState.animationNames.every((name) => name === 'none')).toBe(true);
+  const runningAnimations = await page.evaluate(
+    () => document.getAnimations().filter((animation) => animation.playState === 'running').length,
+  );
+  expect(runningAnimations).toBe(0);
 });
 
 test('battle: hidden enemy fleet, miss/hit markers, no turn lost on a repeated square', async ({

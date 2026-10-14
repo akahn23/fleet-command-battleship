@@ -10,10 +10,11 @@ export type ShipVariant = 'afloat' | 'sunk' | 'ghost';
 interface ShipSpriteProps {
   placement: ShipPlacement;
   variant?: ShipVariant;
+  revealSunk?: boolean;
 }
 
 /** A longship laid into the board's own grid, so it always covers exactly its cells. */
-export function ShipSprite({ placement, variant = 'afloat' }: ShipSpriteProps) {
+export function ShipSprite({ placement, variant = 'afloat', revealSunk = false }: ShipSpriteProps) {
   const { length } = getShip(placement.shipId);
   const vertical = placement.orientation === 'vertical';
   const { row, col } = placement.origin;
@@ -22,7 +23,7 @@ export function ShipSprite({ placement, variant = 'afloat' }: ShipSpriteProps) {
 
   return (
     <div
-      className={`ship ship--${variant}`}
+      className={`ship ship--${variant}${revealSunk ? ' ship--sunk-reveal' : ''}`}
       style={{
         gridRow: `${row + 2} / span ${vertical ? length : 1}`,
         gridColumn: `${col + 2} / span ${vertical ? 1 : length}`,
@@ -84,6 +85,7 @@ export function ShipSprite({ placement, variant = 'afloat' }: ShipSpriteProps) {
           <ShipArtwork shipId={placement.shipId} width={width} id={id} />
         </g>
       </svg>
+      {variant === 'sunk' && <span className="ship__smoke" data-testid="sunk-smoke" />}
     </div>
   );
 }

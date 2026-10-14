@@ -130,7 +130,7 @@
 
 .marker {
   position: relative;
-  z-index: 2;
+  z-index: 4;
   pointer-events: none;
   min-width: 0;
   min-height: 0;
@@ -144,8 +144,44 @@
   height: 100%;
 }
 
-.marker--hit .marker__flame,
-.marker--sunk .marker__flame {
+.marker__splash {
+  transform-origin: center;
+  animation: splash-fade 600ms ease-out both;
+}
+
+.marker__splash-ring {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ripple-expand 600ms ease-out both;
+}
+
+.marker__splash-ring--outer {
+  animation-delay: 70ms;
+}
+
+.marker__droplet {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: droplet-fly 560ms ease-out both;
+}
+
+.marker__impact {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: impact-burst 500ms ease-out both;
+}
+
+.marker__flash {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: flash-pop 500ms ease-out both;
+}
+
+.marker__ember {
+  animation: ember-burst 500ms ease-out both;
+}
+
+.marker--hit .marker__flame {
   transform-origin: center;
   animation: flicker 1.6s ease-in-out infinite alternate;
 }
@@ -170,8 +206,93 @@
   }
 }
 
+@keyframes splash-fade {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes ripple-expand {
+  from {
+    opacity: 0.9;
+    transform: scale(0.4);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.8);
+  }
+}
+
+@keyframes droplet-fly {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-9px) scale(0.35);
+  }
+}
+
+@keyframes impact-burst {
+  from {
+    opacity: 1;
+    transform: scale(0.28);
+  }
+  65% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.45);
+  }
+}
+
+@keyframes flash-pop {
+  from {
+    opacity: 0.95;
+    transform: scale(0.2);
+  }
+  35% {
+    opacity: 0.7;
+    transform: scale(1.25);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+}
+
+@keyframes ember-burst {
+  from {
+    opacity: 1;
+    transform: scale(0.28);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.4);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .board__water {
+  .board__water,
+  .marker,
+  .marker__splash,
+  .marker__splash-ring,
+  .marker__droplet,
+  .marker__impact,
+  .marker__flash,
+  .marker__ember,
+  .marker__flame {
     animation: none !important;
+  }
+
+  .marker__splash,
+  .marker__impact {
+    visibility: hidden;
   }
 }
