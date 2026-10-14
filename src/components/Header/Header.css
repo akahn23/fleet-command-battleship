@@ -72,9 +72,3 @@
   gap: var(--space-2);
   color: var(--parchment-dim);
 }
-
-@media (max-width: 520px) {
-  .site-header__tagline {
-    min-height: 3em;
-  }
-}

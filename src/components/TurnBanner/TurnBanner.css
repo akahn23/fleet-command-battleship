@@ -132,3 +132,13 @@
     animation: none;
   }
 }
+
+@media (max-width: 520px) {
+  .turn-banner {
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .turn-banner__headline {
+    min-height: 3em;
+  }
+}
