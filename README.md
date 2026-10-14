@@ -6,7 +6,9 @@ Command a fleet of Norse longships against a computer-controlled jarl on the col
 north. The rules are classic Battleship. The look and feel are mist, fjords, weathered timber,
 and bronze.
 
-> Status: **Milestone 3 (QA hardening) in review**. See [docs/PROJECT_PLAN.md](docs/PROJECT_PLAN.md).
+![Ravenfjord battle: enemy and player boards, fleet status and battle log](docs/assets/ravenfjord-battle.webp)
+
+See [docs/PROJECT_PLAN.md](docs/PROJECT_PLAN.md) for the requirements and rules specification.
 
 ## How to play
 
@@ -48,7 +50,9 @@ The raven emblem is a hand-authored inline SVG inspired by the historical Viking
 - There are no sound effects; optional sound has not been implemented.
 - Ship placement has click controls but no drag-and-drop.
 - Refreshing starts a new game; progress is not saved.
-- There is no public URL yet; deployment is planned for Milestone 4.
+- The game runs entirely in the browser, so a player using developer tools could inspect the enemy
+  fleet in memory; preventing that would need a server.
+- Tested in Chromium at desktop, tablet and phone sizes; not on physical devices or in Safari or Firefox.
 
 ## Tech stack
 
@@ -86,5 +90,7 @@ BASE_PATH=/fleet-command-battleship/ npm run build   # for a GitHub Pages projec
 ## Documentation
 
 - [Project plan](docs/PROJECT_PLAN.md): requirements, rules specification, architecture, milestones
-- [Debugging report](docs/DEBUGGING_REPORT.md): verified defects with root cause, fix, and verification
+- [Debugging summary](docs/DEBUGGING_SUMMARY.md): the five most instructive bugs, in about two pages
+- [Debugging report](docs/DEBUGGING_REPORT.md): all 12 verified defects with root cause, fix, and verification
+- [Interview debrief](docs/INTERVIEW_DEBRIEF.md): speaking notes for the project debrief
 - [Third-party notices](docs/THIRD_PARTY_NOTICES.md): font and library licenses
