@@ -204,7 +204,7 @@ export default function App({ seed, computerDelayMs = COMPUTER_TURN_DELAY_MS }: 
   return (
     <>
       <Backdrop />
-      <main className="app" ref={mainRef}>
+      <main className={`app${phase !== 'placement' ? ' app--battle' : ''}`} ref={mainRef}>
         <Header
           confirming={confirmingRestart && phase === 'battle'}
           onNewGame={() => (phase === 'battle' ? setConfirmingRestart(true) : newGame())}
@@ -241,7 +241,7 @@ export default function App({ seed, computerDelayMs = COMPUTER_TURN_DELAY_MS }: 
             />
           </div>
         ) : (
-          <>
+          <div className="battle-stage">
             <div className="battle-layout">
               {enemyBoardView}
               {playerBoardView}
@@ -251,7 +251,7 @@ export default function App({ seed, computerDelayMs = COMPUTER_TURN_DELAY_MS }: 
               <FleetStatus title="Your Fleet" board={playerBoard} showDamage />
               <BattleLog log={state.log} />
             </div>
-          </>
+          </div>
         )}
       </main>
 

@@ -1,5 +1,6 @@
 import { isFleetDestroyed, receiveShot } from '../board';
 import { createGame, createReducer } from '../game';
+import { FLEET } from '../fleet';
 import { Rng } from '../rng';
 import { randomFleet } from '../placement';
 import type { Board } from '../types';
@@ -64,6 +65,20 @@ describe('huntTargetAI', () => {
       { row: 4, col: 3, state: 'miss' },
     ]);
     choicesAcrossSeeds(view).forEach((coord) => expect(coord).toEqual({ row: 4, col: 6 }));
+  });
+
+  it('chooses the only continuation when a hit run reaches a board edge', () => {
+    const vertical = viewWith([
+      { row: 8, col: 4, state: 'hit' },
+      { row: 9, col: 4, state: 'hit' },
+    ]);
+    const horizontal = viewWith([
+      { row: 3, col: 8, state: 'hit' },
+      { row: 3, col: 9, state: 'hit' },
+    ]);
+
+    choicesAcrossSeeds(vertical).forEach((coord) => expect(coord).toEqual({ row: 7, col: 4 }));
+    choicesAcrossSeeds(horizontal).forEach((coord) => expect(coord).toEqual({ row: 3, col: 7 }));
   });
 
   it('falls back to adjacent cells when both ends of a run are blocked', () => {
@@ -171,6 +186,34 @@ describe('huntTargetAI', () => {
     );
     expect(huntMean).toBeLessThan(65);
     expect(huntMean).toBeLessThan(randomMean);
+  });
+
+  it('sinks a fleet of touching ships within 100 legal shots across 50 seeds', () => {
+    const ships = FLEET.map(({ id }, row) => ({
+      shipId: id,
+      origin: { row, col: 0 },
+      orientation: 'horizontal' as const,
+    }));
+
+    for (let seed = 0; seed < 50; seed++) {
+      let board: Board = { ships, shots: [] };
+      const rng = new Rng(seed);
+      const targets = new Set<string>();
+      let shots = 0;
+
+      while (!isFleetDestroyed(board)) {
+        const target = huntTargetAI(buildTargetingView(board), rng);
+        const targetKey = key(target);
+        expect(targets.has(targetKey)).toBe(false);
+        const outcome = receiveShot(board, target);
+        expect(outcome).not.toBeNull();
+        if (!outcome) throw new Error(`Illegal target ${targetKey} for seed ${seed}`);
+        targets.add(targetKey);
+        board = outcome.board;
+        shots++;
+        expect(shots).toBeLessThanOrEqual(100);
+      }
+    }
   });
 
   it('makes identical choices from identical views despite different hidden fleets', () => {
