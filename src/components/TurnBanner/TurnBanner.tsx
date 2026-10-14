@@ -15,8 +15,10 @@ export function TurnBanner({ state }: { state: GameState }) {
       ? state.winner === 'player'
         ? 'good'
         : 'bad'
-      : state.phase === 'battle' && state.turn === 'computer'
-        ? 'enemy'
+      : state.phase === 'battle'
+        ? state.turn === 'player'
+          ? 'player'
+          : 'enemy'
         : 'neutral';
 
   return (

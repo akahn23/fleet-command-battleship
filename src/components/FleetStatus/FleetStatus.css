@@ -7,6 +7,13 @@
   margin-bottom: var(--space-2);
 }
 
+.fleet-status__summary {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0 var(--space-2);
+}
+
 .fleet-status__count {
   font-family: var(--font-body);
   font-size: 0.85rem;
@@ -42,6 +49,10 @@
 .fleet-status li.is-sunk .fleet-status__name {
   text-decoration: line-through;
   color: var(--parchment-dim);
+}
+
+.fleet-status li.is-sunk {
+  opacity: 0.66;
 }
 
 .fleet-status li.is-sunk .fleet-status__state {

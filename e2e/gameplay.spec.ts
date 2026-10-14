@@ -285,7 +285,7 @@ test('full game to victory, then New Battle resets everything', async ({ page })
     await expectShipCoversCells(page, 'enemy', ship);
   }
 
-  const dialog = page.getByRole('dialog', { name: 'Victory' });
+  const dialog = page.getByRole('dialog', { name: 'Valhalla Awaits' });
   await expect(dialog).toBeVisible();
   await expect(dialog.getByText('17', { exact: true }).first()).toBeVisible();
   await expect(cell(page, 'enemy', { row: 9, col: 9 })).toHaveAttribute('aria-disabled', 'true');

@@ -11,13 +11,21 @@ interface FleetStatusProps {
 export function FleetStatus({ title, board, showDamage }: FleetStatusProps) {
   const afloat = FLEET.filter((ship) => !isShipSunk(board, ship.id)).length;
   const hitsOn = (id: string) => board.shots.filter((shot) => shot.shipId === id).length;
+  const totalHits = board.shots.filter((shot) => shot.result === 'hit').length;
 
   return (
     <section className="fleet-status panel" aria-label={title}>
       <h3>
         {title}{' '}
-        <span className="fleet-status__count">
-          {afloat} of {FLEET.length} afloat
+        <span className="fleet-status__summary">
+          <span className="fleet-status__count">
+            {afloat} of {FLEET.length} afloat
+          </span>
+          {!showDamage && (
+            <span className="fleet-status__count">
+              {totalHits} {totalHits === 1 ? 'hit' : 'hits'}
+            </span>
+          )}
         </span>
       </h3>
       <ul>
@@ -25,7 +33,12 @@ export function FleetStatus({ title, board, showDamage }: FleetStatusProps) {
           const sunk = isShipSunk(board, ship.id);
           const hits = showDamage ? hitsOn(ship.id) : sunk ? ship.length : 0;
           return (
-            <li key={ship.id} className={sunk ? 'is-sunk' : undefined} data-ship={ship.id}>
+            <li
+              key={ship.id}
+              className={sunk ? 'is-sunk' : undefined}
+              data-ship={ship.id}
+              data-testid={`fleet-ship-${ship.id}`}
+            >
               <span className="fleet-status__name">{ship.name}</span>
               <span className="pips" aria-hidden="true">
                 {Array.from({ length: ship.length }, (_, i) => (

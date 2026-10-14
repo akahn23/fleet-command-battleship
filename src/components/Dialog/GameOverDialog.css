@@ -23,13 +23,32 @@
   animation: rise-in 400ms ease-out;
 }
 
+.dialog--victory {
+  border-color: #e2bd79;
+  background:
+    radial-gradient(ellipse at top, rgba(223, 185, 109, 0.25), transparent 65%),
+    linear-gradient(180deg, #332719, #1b1410);
+}
+
+.dialog--defeat {
+  border-color: #71838b;
+  background:
+    radial-gradient(ellipse at top, rgba(112, 143, 157, 0.18), transparent 65%),
+    linear-gradient(180deg, #202c33, #151c22);
+}
+
 .dialog h2 {
   font-size: 2.2rem;
   color: var(--gold-muted);
 }
 
+.dialog--victory h2 {
+  color: #f0cf83;
+  text-shadow: 0 2px 12px rgba(223, 185, 109, 0.25);
+}
+
 .dialog--defeat h2 {
-  color: var(--invalid);
+  color: #aabac1;
 }
 
 .dialog p {
@@ -38,22 +57,30 @@
 
 .dialog__stats {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: var(--space-2);
   margin: var(--space-4) 0 var(--space-5);
 }
 
 .dialog__stats dt {
-  font-size: 0.8rem;
+  font-size: 0.72rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--parchment-dim);
+}
+
+.dialog--defeat .dialog__stats dt {
+  color: #bdc8c7;
 }
 
 .dialog__stats dd {
   margin: 0;
   font-family: var(--font-display);
   font-size: 1.5rem;
+}
+
+.dialog--defeat .dialog__stats dd {
+  color: #c1ccd0;
 }
 
 .dialog__actions {

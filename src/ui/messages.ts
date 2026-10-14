@@ -9,18 +9,18 @@ export function describeEvent(entry: LogEntry): string {
       return 'The war horns sound. Battle is joined!';
     case 'gameOver':
       return entry.winner === 'player'
-        ? 'Victory! The enemy fleet has fallen.'
-        : 'Defeat. Your fleet rests beneath the waves.';
+        ? 'Your name rises in Valhalla!'
+        : 'The sea claims your fleet.';
     case 'shot': {
       const at = formatCoord(entry.coord);
       if (entry.attacker === 'player') {
-        if (entry.sunk) return `Enemy ${name(entry.sunk)} sunk at ${at}!`;
-        if (entry.result === 'hit') return `Your fleet struck an enemy vessel at ${at}!`;
-        return `Your volley falls into the sea at ${at}.`;
+        if (entry.sunk) return `The enemy ${name(entry.sunk)} sinks to Rán's halls at ${at}!`;
+        if (entry.result === 'hit') return `Your volley struck true at ${at}!`;
+        return `Your volley splashed into open waters at ${at}.`;
       }
-      if (entry.sunk) return `Your ${name(entry.sunk)} has been sunk at ${at}!`;
-      if (entry.result === 'hit') return `The enemy struck your fleet at ${at}!`;
-      return `Enemy attack missed at ${at}.`;
+      if (entry.sunk) return `Your ${name(entry.sunk)} sinks to Rán's halls at ${at}!`;
+      if (entry.result === 'hit') return `The enemy's spear found purchase at ${at}!`;
+      return `The enemy's volley broke upon the sea at ${at}.`;
     }
   }
 }
