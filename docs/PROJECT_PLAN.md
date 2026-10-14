@@ -301,7 +301,7 @@ Planned as **3 reviewable PRs** (decided: sequential PRs, each merged only after
 3. GitHub Actions CI (lint, typecheck, unit, build, e2e).
 4. `README.md` skeleton, `docs/PROJECT_PLAN.md` (this plan), `docs/DEBUGGING_REPORT.md` template.
 
-**PR 2: Rules engine (no UI)** 5. Types, fleet definitions, seeded RNG. 6. `board.ts`: placement validation (bounds, overlap, orientation), shot resolution (hit/miss/sunk), fleet-destroyed check. 7. `placement.ts`: random valid fleet (used by computer and Auto-Place). 8. `game.ts` reducer: phases, strict turn alternation, duplicate-shot rejection, immediate game over, reset, log entries. 9. `targetingView.ts` + `huntTargetAI.ts`: legal targeting from the restricted view; `randomAI.ts` remains the random baseline. 10. Full unit-test suite for all of the above (written alongside, test-first where practical).
+**PR 2: Rules engine (no UI)** 5. Types, fleet definitions, seeded RNG. 6. `board.ts`: placement validation (bounds, overlap, orientation), shot resolution (hit/miss/sunk), fleet-destroyed check. 7. `placement.ts`: random valid fleet (used by computer and Auto-Place). 8. `game.ts` reducer: phases, strict turn alternation, duplicate-shot rejection, immediate game over, reset, log entries. 9. `targetingView.ts` + `randomAI.ts`: legal random targeting from the restricted view. 10. Full unit-test suite for all of the above (written alongside, test-first where practical).
 
 **PR 3: Playable themed UI** 11. App shell, backdrop, header, panel and button styles. 12. `Board`/`Cell` with coordinates, accessible buttons, and hit/miss/sunk markers. 13. Five SVG ship components + `ShipSprite` grid placement. 14. Placement dock: select, ghost preview, rotate (button + `R`), pick up, Auto-Place, Clear, Start Battle. 15. Battle wiring: player fire → AI turn hook (delayed, gameId-guarded) → banner, status, log. 16. Victory/Defeat overlay + New Battle (with mid-battle confirm). 17. Responsive layout: side-by-side boards ≥ 1024 px, stacked below that, cells ≥ 28 px at 360 px wide. 18. Playwright specs + screenshots. Manual playthroughs in the browser. Record verified bugs in the debugging report. 19. Final README pass, then demo it to you (screenshots/recording plus a local preview link).
 
@@ -385,7 +385,7 @@ M1 is complete when **all** of the following are true:
 - [ ] The battle log records each shot and every sinking.
 - [ ] The game ends immediately when a fleet is destroyed, with a Victory/Defeat overlay.
 - [ ] New Battle fully resets state at any point.
-- [ ] The computer opponent makes only legal hunt-and-target moves using only its `TargetingView`.
+- [ ] The computer opponent makes only legal random moves using only its shot history.
 
 **Quality**
 
