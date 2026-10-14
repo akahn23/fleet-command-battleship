@@ -173,11 +173,13 @@ describe('App: battle', () => {
     fireEvent.click(screen.getByRole('button', { name: 'New Battle' }));
     expect(screen.getByRole('group', { name: 'Abandon this battle?' })).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Keep Fighting' }));
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'New Battle' }));
     expect(screen.getByRole('list', { name: 'Battle log' })).toBeInTheDocument();
     expect(cell('enemy-board', { row: 5, col: 5 }).dataset.state).not.toBe('open');
 
     fireEvent.click(screen.getByRole('button', { name: 'New Battle' }));
     fireEvent.click(screen.getByRole('button', { name: 'Abandon Battle' }));
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'New Battle' }));
     expect(screen.getByRole('heading', { name: 'Muster Your Fleet' })).toBeInTheDocument();
     expect(screen.queryByRole('list', { name: 'Battle log' })).not.toBeInTheDocument();
   });

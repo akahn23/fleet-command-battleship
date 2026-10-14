@@ -13,6 +13,7 @@ separately at the end.
 | BUG-004 | One misclick on New Battle threw away a battle           | Code review, PR #3 | `3968a75`, [PR #4](https://github.com/akahn23/fleet-command-battleship/pull/4) |
 | BUG-005 | Keyboard focus escaped the game-over dialog              | Code review, PR #3 | `3968a75`, [PR #4](https://github.com/akahn23/fleet-command-battleship/pull/4) |
 | BUG-006 | Changing a placement after placing it moved the ship     | Code review, PR #2 | `778af09`, [PR #2](https://github.com/akahn23/fleet-command-battleship/pull/2) |
+| BUG-007 | Answering the restart prompt dropped keyboard focus      | Code review, PR #4 | PR #4                                                                          |
 
 ## BUG-001 — Rules-engine tests timed out in CI
 
@@ -77,6 +78,16 @@ separately at the end.
 - **Proof:** a regression test changes the original object after placement and checks that the
   board is unchanged.
 - **Note:** this was fixed in PR #2 at the time but only added to this report afterwards.
+
+## BUG-007 — Answering the restart prompt dropped keyboard focus
+
+- **What happened:** after **Keep Fighting** or **Abandon Battle**, the focused button disappeared
+  and keyboard focus fell back to the page body. This was introduced by the BUG-004 fix.
+- **Why:** the prompt replaces the New Battle button, and nothing moved focus back when the prompt
+  closed.
+- **Fix:** answering the prompt moves focus to New Battle. If the game ends while the prompt is
+  open, the result dialog keeps focus instead.
+- **Proof:** component tests check where focus lands after each answer.
 
 ## Risks designed out from the start (not bugs)
 
