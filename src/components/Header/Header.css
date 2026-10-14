@@ -32,3 +32,11 @@
   color: var(--parchment-dim);
   font-size: clamp(0.85rem, 2.4vw, 1rem);
 }
+
+.site-header__confirm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--parchment-dim);
+}

@@ -151,19 +151,42 @@ describe('App: battle', () => {
     expect(screen.getByRole('dialog', { name: 'Victory' })).toBeInTheDocument();
     expect(within(screen.getByTestId('enemy-board')).getAllByTestId(/^ship-/)).toHaveLength(5);
     expect(screen.getByText('Victory! The enemy fleet has fallen.')).toBeInTheDocument();
+    expect(document.querySelector('main')).toHaveAttribute('inert');
+    expect(document.activeElement).toHaveTextContent('New Battle');
+    expect(document.activeElement?.closest('[role="dialog"]')).not.toBeNull();
 
-    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'New Battle' }));
+    fireEvent.click(screen.getByRole('button', { name: 'View Battlefield' }));
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(document.querySelector('main')).not.toHaveAttribute('inert');
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'New Battle' }));
+
+    fireEvent.click(screen.getByRole('button', { name: 'New Battle' }));
     expect(screen.getByRole('heading', { name: 'Muster Your Fleet' })).toBeInTheDocument();
     expect(within(screen.getByTestId('player-board')).queryAllByTestId(/^ship-/)).toHaveLength(0);
   });
 
-  it('New Battle mid-fight abandons the battle and returns to placement', async () => {
+  it('New Battle mid-fight asks first: Keep Fighting cancels, Abandon Battle restarts', async () => {
     renderGame();
     autoPlaceAndStart();
     await fireAt({ row: 5, col: 5 });
+
     fireEvent.click(screen.getByRole('button', { name: 'New Battle' }));
+    expect(screen.getByRole('group', { name: 'Abandon this battle?' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Keep Fighting' }));
+    expect(screen.getByRole('list', { name: 'Battle log' })).toBeInTheDocument();
+    expect(cell('enemy-board', { row: 5, col: 5 }).dataset.state).not.toBe('open');
+
+    fireEvent.click(screen.getByRole('button', { name: 'New Battle' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Abandon Battle' }));
     expect(screen.getByRole('heading', { name: 'Muster Your Fleet' })).toBeInTheDocument();
     expect(screen.queryByRole('list', { name: 'Battle log' })).not.toBeInTheDocument();
+  });
+
+  it('New Battle during placement restarts immediately, without asking', () => {
+    renderGame();
+    fireEvent.click(screen.getByRole('button', { name: 'Auto-Place Fleet' }));
+    fireEvent.click(screen.getByRole('button', { name: 'New Battle' }));
+    expect(screen.queryByRole('group', { name: 'Abandon this battle?' })).not.toBeInTheDocument();
+    expect(within(screen.getByTestId('player-board')).queryAllByTestId(/^ship-/)).toHaveLength(0);
   });
 });

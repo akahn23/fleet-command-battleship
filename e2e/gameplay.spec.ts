@@ -157,6 +157,12 @@ test('full game to victory, then New Battle resets everything', async ({ page })
   await expect(dialog.getByText('17', { exact: true }).first()).toBeVisible();
   await expect(cell(page, 'enemy', { row: 9, col: 9 })).toHaveAttribute('aria-disabled', 'true');
 
+  // Focus stays out of the page behind the dialog, in both Tab directions.
+  for (const key of ['Shift+Tab', 'Shift+Tab', 'Tab', 'Tab', 'Tab']) {
+    await page.keyboard.press(key);
+    expect(await page.evaluate(() => !document.activeElement?.closest('main'))).toBe(true);
+  }
+
   await dialog.getByRole('button', { name: 'New Battle' }).click();
   await expect(page.getByRole('heading', { name: 'Muster Your Fleet' })).toBeVisible();
   await expect(board(page, 'player').locator('[data-testid^="ship-"]')).toHaveCount(0);

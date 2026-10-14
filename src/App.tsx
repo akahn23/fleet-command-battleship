@@ -1,10 +1,10 @@
-import { useCallback, useEffect, useReducer, useState } from 'react';
+import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { BattleLog } from './components/BattleLog/BattleLog';
 import { Backdrop } from './components/Backdrop/Backdrop';
 import { Board, type BoardPreview, type CellState } from './components/Board/Board';
 import { GameOverDialog } from './components/Dialog/GameOverDialog';
 import { FleetStatus } from './components/FleetStatus/FleetStatus';
-import { Header } from './components/Header/Header';
+import { Header, NEW_BATTLE_BUTTON_ID } from './components/Header/Header';
 import { PlacementDock } from './components/PlacementDock/PlacementDock';
 import { TurnBanner } from './components/TurnBanner/TurnBanner';
 import {
@@ -56,6 +56,8 @@ export default function App({ seed, computerDelayMs = COMPUTER_TURN_DELAY_MS }: 
   const [hover, setHover] = useState<Coord | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [dismissedGameId, setDismissedGameId] = useState<number | null>(null);
+  const [confirmingRestart, setConfirmingRestart] = useState(false);
+  const mainRef = useRef<HTMLElement>(null);
 
   const { phase, boards } = state;
   const playerBoard = boards.player;
@@ -77,7 +79,21 @@ export default function App({ seed, computerDelayMs = COMPUTER_TURN_DELAY_MS }: 
     return () => window.removeEventListener('keydown', onKey);
   }, [phase, rotate]);
 
+  const dialogOpen = phase === 'gameOver' && dismissedGameId !== state.gameId;
+  const dialogWasOpen = useRef(false);
+
+  // While the result dialog is open, the page behind it is inert so focus can't reach it.
+  useEffect(() => {
+    const main = mainRef.current;
+    if (!main) return;
+    main.toggleAttribute('inert', dialogOpen);
+    if (dialogWasOpen.current && !dialogOpen)
+      document.getElementById(NEW_BATTLE_BUTTON_ID)?.focus();
+    dialogWasOpen.current = dialogOpen;
+  }, [dialogOpen]);
+
   const newGame = () => {
+    setConfirmingRestart(false);
     dispatch({ type: 'NEW_GAME' });
     setSelected(FLEET[0]!.id);
     setOrientation('horizontal');
@@ -187,8 +203,13 @@ export default function App({ seed, computerDelayMs = COMPUTER_TURN_DELAY_MS }: 
   return (
     <>
       <Backdrop />
-      <main className="app">
-        <Header onNewGame={newGame} />
+      <main className="app" ref={mainRef}>
+        <Header
+          confirming={confirmingRestart && phase === 'battle'}
+          onNewGame={() => (phase === 'battle' ? setConfirmingRestart(true) : newGame())}
+          onConfirm={newGame}
+          onCancel={() => setConfirmingRestart(false)}
+        />
         <TurnBanner state={state} />
 
         {phase === 'placement' ? (
@@ -233,7 +254,7 @@ export default function App({ seed, computerDelayMs = COMPUTER_TURN_DELAY_MS }: 
         )}
       </main>
 
-      {phase === 'gameOver' && dismissedGameId !== state.gameId && (
+      {dialogOpen && (
         <GameOverDialog
           state={state}
           onNewGame={newGame}
