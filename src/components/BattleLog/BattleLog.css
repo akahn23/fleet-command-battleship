@@ -11,6 +11,11 @@
   list-style: none;
 }
 
+.battle-log ol:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
 .battle-log li {
   padding: 5px 0 5px var(--space-3);
   border-left: 2px solid #756147;

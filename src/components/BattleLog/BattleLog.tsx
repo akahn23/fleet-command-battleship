@@ -10,7 +10,7 @@ export function BattleLog({ log }: { log: LogEntry[] }) {
       {newestFirst.length === 0 ? (
         <p className="battle-log__empty">The saga is yet unwritten.</p>
       ) : (
-        <ol aria-label="Battle log">
+        <ol aria-label="Battle log" tabIndex={0}>
           {newestFirst.map((entry) => (
             <li key={entry.id} className={`tone-${eventTone(entry)}`}>
               {describeEvent(entry)}

@@ -293,6 +293,40 @@ test('battle: hidden enemy fleet, miss/hit markers, no turn lost on a repeated s
   await expect(headline(page)).toHaveText(/your turn/i);
 });
 
+test('keyboard navigation fires at C1 and scrolls the overflowing battle log', async ({ page }) => {
+  await startWithAutoPlacement(page);
+  await cell(page, 'enemy', { row: 0, col: 0 }).focus();
+  await page.keyboard.press('ArrowRight');
+  await page.keyboard.press('ArrowRight');
+
+  const target = cell(page, 'enemy', { row: 0, col: 2 });
+  await expect(target).toBeFocused();
+  await expect(target).toHaveAttribute('data-col', '2');
+  await page.keyboard.press('Enter');
+  await expect(target).toHaveAttribute('data-state', /^(miss|hit|sunk)$/);
+  await expect(headline(page)).toHaveText(/your turn/i);
+
+  for (const coord of [
+    { row: 0, col: 0 },
+    { row: 0, col: 1 },
+    { row: 0, col: 3 },
+    { row: 0, col: 4 },
+    { row: 0, col: 5 },
+    { row: 0, col: 6 },
+    { row: 0, col: 7 },
+    { row: 0, col: 8 },
+  ]) {
+    await fireAt(page, coord);
+  }
+
+  const log = page.getByRole('list', { name: 'Battle log' });
+  expect(await log.evaluate((element) => element.scrollHeight > element.clientHeight)).toBe(true);
+  await log.focus();
+  await expect(log).toBeFocused();
+  for (let press = 0; press < 5; press++) await page.keyboard.press('ArrowDown');
+  await expect.poll(() => log.evaluate((element) => element.scrollTop)).toBeGreaterThan(0);
+});
+
 test('full game to victory, then New Battle resets everything', async ({ page }) => {
   test.setTimeout(90_000);
   await startWithAutoPlacement(page);

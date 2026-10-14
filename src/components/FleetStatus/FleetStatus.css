@@ -51,10 +51,10 @@
   color: var(--parchment-dim);
 }
 
-.fleet-status li.is-sunk {
-  opacity: 0.66;
+.fleet-status li.is-sunk .pips {
+  opacity: 0.6;
 }
 
 .fleet-status li.is-sunk .fleet-status__state {
-  color: var(--invalid);
+  color: #e58a7e;
 }
