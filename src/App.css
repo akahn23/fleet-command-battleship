@@ -148,3 +148,12 @@
   border-color: var(--ember);
   background: var(--blood);
 }
+
+.btn--danger {
+  border-color: var(--invalid);
+  background: linear-gradient(180deg, var(--blood), #6e1a14);
+}
+
+.btn--danger:hover:not(:disabled) {
+  background: linear-gradient(180deg, #b8362c, var(--blood));
+}

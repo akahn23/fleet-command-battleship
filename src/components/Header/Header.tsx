@@ -1,6 +1,34 @@
+import { useEffect, useRef } from 'react';
 import './Header.css';
 
-export function Header({ onNewGame }: { onNewGame: () => void }) {
+interface HeaderProps {
+  /** True while asking whether to abandon an unfinished battle. */
+  confirming: boolean;
+  onNewGame: () => void;
+  onConfirm: () => void;
+  onCancel: () => void;
+}
+
+export const NEW_BATTLE_BUTTON_ID = 'new-battle-button';
+
+export function Header({ confirming, onNewGame, onConfirm, onCancel }: HeaderProps) {
+  const newBattleRef = useRef<HTMLButtonElement>(null);
+  // Set only when the player answers the prompt, so a game ending mid-prompt
+  // leaves focus with the result dialog.
+  const restoreFocus = useRef(false);
+
+  useEffect(() => {
+    if (!confirming && restoreFocus.current) {
+      restoreFocus.current = false;
+      newBattleRef.current?.focus();
+    }
+  }, [confirming]);
+
+  const answer = (choice: () => void) => () => {
+    restoreFocus.current = true;
+    choice();
+  };
+
   return (
     <header className="site-header">
       <div className="site-header__brand">
@@ -17,9 +45,27 @@ export function Header({ onNewGame }: { onNewGame: () => void }) {
           <p className="site-header__tagline">A Viking war of wits upon the northern sea</p>
         </div>
       </div>
-      <button type="button" className="btn" onClick={onNewGame}>
-        New Battle
-      </button>
+      {confirming ? (
+        <div className="site-header__confirm" role="group" aria-labelledby="abandon-prompt">
+          <span id="abandon-prompt">Abandon this battle?</span>
+          <button type="button" className="btn" onClick={answer(onCancel)} autoFocus>
+            Keep Fighting
+          </button>
+          <button type="button" className="btn btn--danger" onClick={answer(onConfirm)}>
+            Abandon Battle
+          </button>
+        </div>
+      ) : (
+        <button
+          ref={newBattleRef}
+          id={NEW_BATTLE_BUTTON_ID}
+          type="button"
+          className="btn"
+          onClick={onNewGame}
+        >
+          New Battle
+        </button>
+      )}
     </header>
   );
 }
