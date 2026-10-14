@@ -56,8 +56,7 @@ requests, commits and documentation.
   - Every game action goes through one reducer, which rejects illegal moves itself.
   - The computer receives only a `TargetingView` of its own shot results, never ship positions.
 - **Testing layers:**
-  - **Unit and component tests:** 100, including 150 seeded full-game simulations that try every
-    illegal action before each move.
+  - **Unit and component tests:** 100, including 150 seeded full-game simulations that try a fixed set of illegal actions (off-board, repeated and out-of-turn shots; a computer shot on the player's turn; a stale computer move from an old game; and placement actions during battle) before each move.
   - **Browser tests:** 31 Playwright tests on desktop and mobile, including accessibility scans.
   - **Recorded play-throughs:** real-browser runs of complete victories and defeats.
 - **Bugs:** 12 real bugs were found and fixed; the

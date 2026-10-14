@@ -68,7 +68,7 @@ Several risks were designed out before they could become bugs:
 
 - **Fair opponent:** the computer opponent only receives its own shot results, never the player's
   ship positions, and tests prove its choices don't change when hidden ships move.
-- **Rules enforced in one place:** the rules engine rejects every illegal action itself, so the
+- **Rules enforced in one place:** the rules engine rejects illegal actions itself, so the
   rules don't depend on buttons being disabled.
 - **No stale moves:** a delayed computer move from a previous game is discarded.
 - **Simulation testing:** Milestone 3 added 150 seeded full-game simulations. Before every move,
