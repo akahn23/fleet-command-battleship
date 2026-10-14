@@ -96,7 +96,9 @@ Any action whose preconditions fail is **rejected**: the reducer returns the exa
 
 - The player sees their own ships, and on the enemy board only their own shots' outcomes plus fully revealed sunk ships.
 - Enemy ship positions are not rendered in the page until legitimately revealed (sunk, or game over).
-- The computer receives only a `TargetingView`: per-cell `unknown | miss | hit | sunk` for its own past shots, plus the lengths of the player's ships not yet sunk. That is the same information the human has. Ship coordinates are not part of that type.
+- The computer receives only a `TargetingView`: per-cell `unknown | miss | hit | sunk` for its own past shots, plus the lengths of the player's ships not yet sunk. Ship coordinates are not part of that type.
+- The default `huntTargetAI` follows unresolved hit runs, then checks adjacent unknown cells; when hunting, it targets the shortest remaining ship's parity and falls back to any unknown cell if needed.
+- Sunk cells are excluded from unresolved hits, so sinking one ship returns the AI to hunting while other unresolved hits remain targets.
 - The human always fires first.
 
 ### UI-only conventions
@@ -173,7 +175,8 @@ fleet-command-battleship/
 │   │   ├── rng.ts                    # seeded RNG (mulberry32)
 │   │   └── ai/
 │   │       ├── targetingView.ts      # builds the AI's legal view
-│   │       └── randomAI.ts           # M1; huntTargetAI.ts in M2
+│   │       ├── randomAI.ts           # retained random baseline
+│   │       └── huntTargetAI.ts       # default hunt-and-target opponent
 │   ├── components/
 │   │   ├── Board/ (Board.tsx, Cell.tsx, Board.css)
 │   │   ├── ships/ (ShipSprite.tsx, GreatLongship.tsx, Dragonship.tsx, ... )
@@ -298,7 +301,7 @@ Planned as **3 reviewable PRs** (decided: sequential PRs, each merged only after
 3. GitHub Actions CI (lint, typecheck, unit, build, e2e).
 4. `README.md` skeleton, `docs/PROJECT_PLAN.md` (this plan), `docs/DEBUGGING_REPORT.md` template.
 
-**PR 2: Rules engine (no UI)** 5. Types, fleet definitions, seeded RNG. 6. `board.ts`: placement validation (bounds, overlap, orientation), shot resolution (hit/miss/sunk), fleet-destroyed check. 7. `placement.ts`: random valid fleet (used by computer and Auto-Place). 8. `game.ts` reducer: phases, strict turn alternation, duplicate-shot rejection, immediate game over, reset, log entries. 9. `targetingView.ts` + `randomAI.ts`: legal random targeting from the restricted view. 10. Full unit-test suite for all of the above (written alongside, test-first where practical).
+**PR 2: Rules engine (no UI)** 5. Types, fleet definitions, seeded RNG. 6. `board.ts`: placement validation (bounds, overlap, orientation), shot resolution (hit/miss/sunk), fleet-destroyed check. 7. `placement.ts`: random valid fleet (used by computer and Auto-Place). 8. `game.ts` reducer: phases, strict turn alternation, duplicate-shot rejection, immediate game over, reset, log entries. 9. `targetingView.ts` + `huntTargetAI.ts`: legal targeting from the restricted view; `randomAI.ts` remains the random baseline. 10. Full unit-test suite for all of the above (written alongside, test-first where practical).
 
 **PR 3: Playable themed UI** 11. App shell, backdrop, header, panel and button styles. 12. `Board`/`Cell` with coordinates, accessible buttons, and hit/miss/sunk markers. 13. Five SVG ship components + `ShipSprite` grid placement. 14. Placement dock: select, ghost preview, rotate (button + `R`), pick up, Auto-Place, Clear, Start Battle. 15. Battle wiring: player fire → AI turn hook (delayed, gameId-guarded) → banner, status, log. 16. Victory/Defeat overlay + New Battle (with mid-battle confirm). 17. Responsive layout: side-by-side boards ≥ 1024 px, stacked below that, cells ≥ 28 px at 360 px wide. 18. Playwright specs + screenshots. Manual playthroughs in the browser. Record verified bugs in the debugging report. 19. Final README pass, then demo it to you (screenshots/recording plus a local preview link).
 
@@ -382,7 +385,7 @@ M1 is complete when **all** of the following are true:
 - [ ] The battle log records each shot and every sinking.
 - [ ] The game ends immediately when a fleet is destroyed, with a Victory/Defeat overlay.
 - [ ] New Battle fully resets state at any point.
-- [ ] The computer opponent makes only legal random moves using only its shot history.
+- [ ] The computer opponent makes only legal hunt-and-target moves using only its `TargetingView`.
 
 **Quality**
 

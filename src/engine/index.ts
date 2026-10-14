@@ -7,3 +7,4 @@ export * from './rng';
 export * from './game';
 export * from './ai/targetingView';
 export * from './ai/randomAI';
+export * from './ai/huntTargetAI';

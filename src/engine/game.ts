@@ -7,7 +7,8 @@ import {
   removeShip,
 } from './board';
 import { buildTargetingView } from './ai/targetingView';
-import { randomAI, type TargetingStrategy } from './ai/randomAI';
+import { huntTargetAI } from './ai/huntTargetAI';
+import type { TargetingStrategy } from './ai/randomAI';
 import { randomFleet } from './placement';
 import { Rng } from './rng';
 import type { Coord, GameState, LogEvent, ShipId, ShipPlacement, Side } from './types';
@@ -82,7 +83,7 @@ function fire(
   };
 }
 
-export function createReducer(strategy: TargetingStrategy = randomAI) {
+export function createReducer(strategy: TargetingStrategy = huntTargetAI) {
   return function gameReducer(state: GameState, action: GameAction): GameState {
     switch (action.type) {
       case 'PLACE_SHIP': {
