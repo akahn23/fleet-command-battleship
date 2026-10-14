@@ -34,6 +34,14 @@ ships are revealed and take on a burnt, darkened appearance. Animations respect
 `prefers-reduced-motion`. Victory and defeat screens show shots fired, hits, accuracy, enemy ships
 sunk, and ships lost.
 
+## Visual assets
+
+The fjord backdrop is original procedural art generated with fixed seeds by
+`scripts/art/generate-fjord.py`, without source imagery. It is supplied as 1920px AVIF (12,156
+bytes) with WebP fallback (15,484 bytes), and 960px AVIF (5,002 bytes) with WebP fallback (5,510
+bytes). The raven emblem is a hand-authored inline SVG inspired by the historical Viking raven
+banner.
+
 ## Known limitations
 
 - There are no sound effects; optional sound has not been implemented.
