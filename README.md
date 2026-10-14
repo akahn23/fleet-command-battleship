@@ -2,11 +2,15 @@
 
 **Battleship reimagined as a Viking naval strategy game.**
 
+### [▶ Play Ravenfjord](https://ravenfjord.vercel.app)
+
 Command a fleet of Norse longships against a computer-controlled jarl on the cold seas of the
 north. The rules are classic Battleship. The look and feel are mist, fjords, weathered timber,
 and bronze.
 
 ![Ravenfjord battle: enemy and player boards, fleet status and battle log](docs/assets/ravenfjord-battle.webp)
+
+[Watch a 43-second playthrough](docs/assets/ravenfjord-gameplay.mp4) recorded on the live site.
 
 See [docs/PROJECT_PLAN.md](docs/PROJECT_PLAN.md) for the requirements and rules specification.
 
@@ -80,6 +84,11 @@ npm run test:e2e     # browser tests against a production-style build
 npm run lint && npm run typecheck
 ```
 
+## Deployment
+
+Vercel builds and deploys `main` to https://ravenfjord.vercel.app on every merge, using the Vite
+preset with no extra configuration.
+
 ## Building
 
 ```bash
@@ -93,4 +102,5 @@ BASE_PATH=/fleet-command-battleship/ npm run build   # for a GitHub Pages projec
 - [Debugging summary](docs/DEBUGGING_SUMMARY.md): the five most instructive bugs, in about two pages
 - [Debugging report](docs/DEBUGGING_REPORT.md): all 12 verified defects with root cause, fix, and verification
 - [Interview debrief](docs/INTERVIEW_DEBRIEF.md): speaking notes for the project debrief
+- [M1 submission](docs/M1_SUBMISSION.md): the three required links, release status and checklist
 - [Third-party notices](docs/THIRD_PARTY_NOTICES.md): font and library licenses
