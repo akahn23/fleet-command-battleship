@@ -72,4 +72,4 @@ Several risks were designed out before they could become bugs:
   rules don't depend on buttons being disabled.
 - **No stale moves:** a delayed computer move from a previous game is discarded.
 - **Simulation testing:** Milestone 3 added 150 seeded full-game simulations. Before every move,
-  they try every illegal action and assert the game state does not change.
+  they try a fixed set of illegal actions (off-board, repeated and out-of-turn shots; a computer shot on the player's turn; a stale computer move from an old game; and placement actions during battle) and assert the game state does not change.
