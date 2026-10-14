@@ -230,8 +230,8 @@ Severity: **P0** game-breaking or wrong outcome · **P1** gameplay, AI, turn or 
   - 100 seeds × 200 random placement attempts matched an independent rules checker exactly.
   - Auto-placement produced legal fleets across 1,000 seeds.
 - **Turns and combat:** 150 simulated full games tried a fixed set of illegal actions before each move:
-  repeated, off-board and out-of-turn shots, a stale computer move from an old game, and placement
-  actions during battle. All were rejected without changing state, and the invariants held:
+  repeated, off-board and out-of-turn shots, a computer shot on the player's turn, a stale computer
+  move from an old game, and placement actions during battle. All were rejected without changing state, and the invariants held:
   strict alternation, unique shots, a single game-over event, the correct winner, and no shots
   after the game ended.
   - Rapid clicks fire exactly one shot.
