@@ -113,14 +113,14 @@ function GreatLongship({ width, id }: { width: number; id: string }) {
 
   return (
     <>
-      <ellipse cx={center} cy="32" rx={width / 2 - 12} ry="4" fill="rgba(0,0,0,.36)" />
+      <ellipse cx={center} cy="37" rx={width / 2 - 12} ry="2" fill="rgba(0,0,0,.36)" />
       <path
-        d={`M4 18 Q8 27 25 31 Q${center} 35 ${width - 25} 31 Q${width - 8} 27 ${width - 4} 18 Q${width - 20} 23 ${width - 34} 22 H34 Q18 23 4 18 Z`}
+        d={`M4 16 Q8 29 25 33 Q${center} 37 ${width - 25} 33 Q${width - 8} 29 ${width - 4} 16 Q${width - 20} 23 ${width - 34} 21 H34 Q18 22 4 16 Z`}
         fill={`url(#hull-great-${id})`}
         stroke="var(--wood-dark)"
         strokeWidth="1.4"
       />
-      {[26, 29].map((y) => (
+      {[27, 31, 34].map((y) => (
         <path
           key={y}
           d={`M16 ${y} Q${center} ${y + 2} ${width - 16} ${y}`}
@@ -133,23 +133,23 @@ function GreatLongship({ width, id }: { width: number; id: string }) {
         <g key={x}>
           <line
             x1={x}
-            y1="26"
+            y1="24"
             x2={x - 3}
             y2="37"
             stroke="var(--wood-dark)"
-            strokeWidth="1.3"
+            strokeWidth="1.8"
             strokeLinecap="round"
           />
-          <circle cx={x} cy="21.5" r="4.5" fill={colors[index % colors.length]} stroke="#211b18" />
-          <circle cx={x} cy="21.5" r="1.15" fill={`url(#shield-boss-${id})`} />
+          <circle cx={x} cy="19.5" r="5.7" fill={colors[index % colors.length]} stroke="#211b18" />
+          <circle cx={x} cy="19.5" r="1.35" fill={`url(#shield-boss-${id})`} />
         </g>
       ))}
-      <line x1={center} y1="3" x2={center} y2="24" stroke="#3d2b1d" strokeWidth="2" />
+      <line x1={center} y1="2" x2={center} y2="25" stroke="#3d2b1d" strokeWidth="2" />
       <rect
         x={center - sailWidth / 2}
-        y="3"
+        y="2"
         width={sailWidth}
-        height="18"
+        height="22"
         rx="1"
         fill={`url(#sail-great-${id})`}
         stroke="#32251c"
@@ -180,14 +180,14 @@ function Dragonship({ width, id }: { width: number; id: string }) {
 
   return (
     <>
-      <ellipse cx={center} cy="32" rx={width / 2 - 13} ry="3.5" fill="rgba(0,0,0,.44)" />
+      <ellipse cx={center} cy="37" rx={width / 2 - 13} ry="2" fill="rgba(0,0,0,.44)" />
       <path
-        d={`M7 19 Q14 28 31 31 Q${center} 34 ${width - 28} 30 Q${width - 8} 26 ${width - 5} 17 Q${width - 23} 23 ${width - 38} 22 H34 Q18 23 7 19 Z`}
+        d={`M7 16 Q14 29 31 33 Q${center} 37 ${width - 28} 32 Q${width - 8} 28 ${width - 5} 15 Q${width - 23} 22 ${width - 38} 21 H34 Q18 22 7 16 Z`}
         fill={`url(#hull-tar-${id})`}
         stroke="#111214"
         strokeWidth="1.5"
       />
-      {[26, 29].map((y) => (
+      {[28, 32, 35].map((y) => (
         <path
           key={y}
           d={`M24 ${y} Q${center} ${y + 1.5} ${width - 25} ${y}`}
@@ -196,12 +196,12 @@ function Dragonship({ width, id }: { width: number; id: string }) {
           strokeWidth=".7"
         />
       ))}
-      <line x1={center} y1="2" x2={center} y2="24" stroke="#262123" strokeWidth="2" />
+      <line x1={center} y1="1" x2={center} y2="27" stroke="#262123" strokeWidth="2" />
       <rect
         x={center - sailWidth / 2}
-        y="2"
+        y="1"
         width={sailWidth}
-        height="20"
+        height="24"
         rx="1"
         fill={`url(#sail-dragon-${id})`}
         stroke="#140f12"
@@ -240,25 +240,25 @@ function WarLongship({ width, id }: { width: number; id: string }) {
 
   return (
     <>
-      <ellipse cx={center} cy="32" rx={width / 2 - 12} ry="3.5" fill="rgba(0,0,0,.36)" />
+      <ellipse cx={center} cy="37" rx={width / 2 - 12} ry="2" fill="rgba(0,0,0,.36)" />
       <path
-        d={`M5 18 Q12 28 28 31 Q${center} 34 ${width - 25} 30 Q${width - 8} 26 ${width - 4} 17 Q${width - 19} 23 ${width - 32} 22 H31 Q15 23 5 18 Z`}
+        d={`M5 16 Q12 29 28 33 Q${center} 37 ${width - 25} 32 Q${width - 8} 28 ${width - 4} 15 Q${width - 19} 22 ${width - 32} 21 H31 Q15 22 5 16 Z`}
         fill={`url(#hull-war-${id})`}
         stroke="#30251d"
         strokeWidth="1.3"
       />
       <path
-        d={`M5 18 Q12 25 23 25 M${width - 23} 25 Q${width - 10} 23 ${width - 4} 17`}
+        d={`M5 16 Q12 26 23 27 M${width - 23} 27 Q${width - 10} 25 ${width - 4} 15`}
         fill="none"
         stroke="#c18d54"
         strokeWidth="1"
       />
-      <line x1={center} y1="4" x2={center} y2="24" stroke="#3e2e22" strokeWidth="2" />
+      <line x1={center} y1="2" x2={center} y2="27" stroke="#3e2e22" strokeWidth="2" />
       <rect
         x={center - sailWidth / 2}
-        y="4"
+        y="2"
         width={sailWidth}
-        height="15"
+        height="20"
         rx="1"
         fill={`url(#sail-war-${id})`}
         stroke="#292725"
@@ -268,13 +268,13 @@ function WarLongship({ width, id }: { width: number; id: string }) {
         <g key={x}>
           <circle
             cx={x}
-            cy="22"
-            r="4.4"
+            cy="20.5"
+            r="5.6"
             fill={index % 2 === 0 ? '#315a79' : '#eee4ce'}
             stroke="#20252a"
             strokeWidth="1"
           />
-          <circle cx={x} cy="22" r="1.1" fill={`url(#shield-boss-${id})`} />
+          <circle cx={x} cy="20.5" r="1.35" fill={`url(#shield-boss-${id})`} />
         </g>
       ))}
       <path
@@ -301,15 +301,15 @@ function Raider({ width, id }: { width: number; id: string }) {
 
   return (
     <>
-      <ellipse cx={center} cy="32" rx={width / 2 - 12} ry="3.5" fill="rgba(0,0,0,.3)" />
+      <ellipse cx={center} cy="37" rx={width / 2 - 12} ry="2" fill="rgba(0,0,0,.3)" />
       <path
-        d={`M8 21 Q13 27 30 30 Q${center} 32 ${width - 27} 29 Q${width - 9} 25 ${width - 5} 17 Q${width - 21} 22 ${width - 35} 22 H35 Q19 23 8 21 Z`}
+        d={`M8 17 Q13 29 30 33 Q${center} 37 ${width - 27} 32 Q${width - 9} 28 ${width - 5} 15 Q${width - 21} 21 ${width - 35} 21 H35 Q19 22 8 17 Z`}
         fill={`url(#hull-oak-${id})`}
         stroke="#59402a"
         strokeWidth="1.4"
       />
       <path
-        d={`M25 26 Q${center} 28 ${width - 25} 26 M30 29 Q${center} 31 ${width - 30} 29`}
+        d={`M25 28 Q${center} 30 ${width - 25} 28 M30 32 Q${center} 34 ${width - 30} 32`}
         fill="none"
         stroke="#725131"
         strokeWidth=".8"
@@ -317,30 +317,30 @@ function Raider({ width, id }: { width: number; id: string }) {
       {oars.map((x) => (
         <g key={x}>
           <path
-            d={`M${x} 23 L${x - 5} 37`}
+            d={`M${x} 24 L${x - 5} 39`}
             stroke="#684a2e"
             strokeWidth="1.5"
             strokeLinecap="round"
           />
           <path
-            d={`M${x} 23 L${x + 5} 37`}
+            d={`M${x} 24 L${x + 5} 39`}
             stroke="#684a2e"
             strokeWidth="1.5"
             strokeLinecap="round"
           />
         </g>
       ))}
-      <line x1={center} y1="16" x2={center} y2="24" stroke="#4d3725" strokeWidth="2" />
+      <line x1={center} y1="6" x2={center} y2="28" stroke="#4d3725" strokeWidth="2.4" />
       <path
-        d="M18 21 Q8 19 5 13 Q11 14 15 10 Q21 10 22 15 L18 18 Q23 19 25 22"
+        d="M18 18 Q8 16 5 10 Q11 11 15 7 Q21 7 22 12 L18 15 Q23 16 25 19"
         fill="#9b6d42"
         stroke="#422f22"
         strokeWidth="1.2"
       />
-      <path d="M8 15 Q15 16 21 20" fill="none" stroke="#ead1a0" strokeWidth="1" />
-      <circle cx="15" cy="13" r="1" fill="#261d18" />
+      <path d="M8 12 Q15 13 21 17" fill="none" stroke="#ead1a0" strokeWidth="1" />
+      <circle cx="15" cy="10" r="1" fill="#261d18" />
       <path
-        d={`M${width - 21} 21 C${width - 10} 20 ${width - 6} 14 ${width - 11} 12 C${width - 17} 10 ${width - 20} 16 ${width - 15} 18`}
+        d={`M${width - 21} 18 C${width - 10} 17 ${width - 6} 11 ${width - 11} 9 C${width - 17} 7 ${width - 20} 13 ${width - 15} 15`}
         fill="none"
         stroke="#775033"
         strokeWidth="2"
@@ -356,9 +356,9 @@ function ScoutShip({ width, id }: { width: number; id: string }) {
 
   return (
     <>
-      <ellipse cx={center} cy="32" rx={width / 2 - 11} ry="3" fill="rgba(0,0,0,.32)" />
+      <ellipse cx={center} cy="37" rx={width / 2 - 11} ry="2" fill="rgba(0,0,0,.32)" />
       <path
-        d={`M9 19 Q12 28 ${center - 8} 30 Q${center} 32 ${center + 8} 30 Q${width - 12} 28 ${width - 9} 19 Q${width - 17} 23 ${width - 25} 22 H25 Q17 23 9 19 Z`}
+        d={`M9 16 Q12 29 ${center - 8} 33 Q${center} 36 ${center + 8} 33 Q${width - 12} 29 ${width - 9} 16 Q${width - 17} 22 ${width - 25} 21 H25 Q17 22 9 16 Z`}
         fill={`url(#hull-oak-${id})`}
         stroke="#62472e"
         strokeWidth="1.4"
@@ -366,25 +366,25 @@ function ScoutShip({ width, id }: { width: number; id: string }) {
       <path d={`M${center - 7} 27 Q${center} 29 ${center + 7} 27`} fill="none" stroke="#805b37" />
       <line
         x1={center - 7}
-        y1="23"
+        y1="24"
         x2={center - 13}
-        y2="35"
+        y2="38"
         stroke="#775638"
         strokeWidth="1.6"
         strokeLinecap="round"
       />
       <line
         x1={center + 7}
-        y1="23"
+        y1="24"
         x2={center + 13}
-        y2="35"
+        y2="38"
         stroke="#775638"
         strokeWidth="1.6"
         strokeLinecap="round"
       />
-      <line x1={center} y1="7" x2={center} y2="24" stroke="#533c27" strokeWidth="1.8" />
+      <line x1={center} y1="3" x2={center} y2="27" stroke="#533c27" strokeWidth="1.8" />
       <path
-        d={`M${center - sailWidth / 2} 8 Q${center - 2} 6 ${center} 8 V21 H${center - sailWidth / 2} Z`}
+        d={`M${center - sailWidth / 2} 4 Q${center - 2} 2 ${center} 4 V23 H${center - sailWidth / 2} Z`}
         fill={`url(#sail-scout-${id})`}
         stroke="#513b29"
         strokeWidth="1"
