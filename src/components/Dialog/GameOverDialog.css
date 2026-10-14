@@ -90,6 +90,16 @@
   gap: var(--space-3);
 }
 
+@media (max-width: 420px) {
+  .dialog {
+    padding: var(--space-5) var(--space-4);
+  }
+
+  .dialog__stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
 @keyframes fade-in {
   from {
     opacity: 0;
