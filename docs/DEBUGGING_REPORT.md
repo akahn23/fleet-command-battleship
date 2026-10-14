@@ -22,7 +22,18 @@ the bottom, so they aren't mistaken for bugs found.
 
 ## Verified defects
 
-_No defects recorded yet._
+### BUG-001 — Rules-engine tests timed out in CI
+
+| Field                  | Detail                                                                                                                                                                                                                                                |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Summary**            | Two property-style tests exceeded Vitest's 5 s default timeout on the GitHub Actions runner                                                                                                                                                           |
+| **Found by**           | CI (`verify` job on PR #2)                                                                                                                                                                                                                            |
+| **Steps to reproduce** | Run `npm test` on the CI runner at the PR #2 head before the fix                                                                                                                                                                                      |
+| **Expected vs actual** | Expected all 63 tests to pass. Actual: "randomFleet … 1,000 seeds" and "full simulated games … 300 seeds" failed with `Test timed out in 5000ms` (locally they passed, at 2.4 s and 3.6 s, so the slower runner pushed them over)                     |
+| **Root cause**         | Quadratic work in the engine: `randomFleet` re-validated each of ~180 candidate positions against every cell of every already-placed ship, and `buildTargetingView` scanned the whole shot list once for each of the 100 cells on every computer turn |
+| **Fix**                | `src/engine/placement.ts` tracks occupied cells in a `Set`; `src/engine/ai/targetingView.ts` indexes shots in a `Map` once per call. The two heavy tests also get an explicit 15 s budget so a slow runner can't cause a false failure                |
+| **Verification**       | Locally the tests dropped from 2,367 ms to 622 ms and from 3,649 ms to 1,638 ms; all 62 engine tests still pass, including the legality and fairness suites; the CI `verify` job was rerun                                                            |
+| **Reference**          | Commit `8c90bbb`, [PR #2](https://github.com/akahn23/fleet-command-battleship/pull/2)                                                                                                                                                                 |
 
 ## Risks mitigated by design (not bugs)
 
