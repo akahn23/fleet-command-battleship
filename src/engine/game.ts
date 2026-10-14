@@ -25,8 +25,6 @@ export type GameAction =
 export interface GameOptions {
   seed: number;
   gameId?: number;
-  /** Computer targeting strategy. Receives only a `TargetingView`. */
-  strategy?: TargetingStrategy;
 }
 
 export function createGame({ seed, gameId = 1 }: GameOptions): GameState {
