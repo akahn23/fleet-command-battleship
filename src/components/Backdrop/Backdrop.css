@@ -4,8 +4,16 @@
   z-index: -1;
   overflow: hidden;
   background:
-    radial-gradient(ellipse at 50% -10%, rgba(138, 155, 163, 0.35), transparent 55%),
-    linear-gradient(180deg, #1a2d38 0%, var(--sea-deep) 45%, #09131a 100%);
+    radial-gradient(ellipse at 50% 35%, rgba(204, 181, 145, 0.1), transparent 48%),
+    linear-gradient(180deg, #142936 0%, #2b4652 37%, #192f39 66%, #0a1720 100%);
+}
+
+.backdrop::after {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 32%, rgba(3, 9, 14, 0.58) 100%);
+  content: '';
+  pointer-events: none;
 }
 
 .backdrop__fjord {
@@ -13,35 +21,66 @@
   top: 0;
   left: 0;
   width: 100%;
-  height: 34vh;
-  opacity: 0.9;
+  height: 57vh;
+}
+
+.backdrop__ridge--far {
+  fill: var(--fjord-far);
+  opacity: 0.54;
+  filter: blur(1px);
+}
+
+.backdrop__ridge--middle {
+  fill: var(--fjord-middle);
+  opacity: 0.74;
+}
+
+.backdrop__ridge--near {
+  fill: var(--fjord-near);
+  opacity: 0.92;
 }
 
 .backdrop__mist {
   position: absolute;
-  left: -50%;
-  width: 200%;
-  height: 40vh;
-  background: radial-gradient(ellipse at center, rgba(200, 210, 214, 0.1), transparent 65%);
-  animation: drift 60s linear infinite alternate;
+  left: -32%;
+  width: 164%;
+  height: 13vh;
+  background: radial-gradient(ellipse at center, rgba(202, 216, 220, 0.13), transparent 69%);
+  animation: mist-drift 60s ease-in-out infinite alternate;
+  opacity: 0.66;
+  pointer-events: none;
 }
 
 .backdrop__mist--a {
-  top: 14vh;
+  top: 19vh;
 }
 
 .backdrop__mist--b {
-  top: 55vh;
-  animation-duration: 90s;
+  top: 39vh;
+  animation-duration: 76s;
   animation-direction: alternate-reverse;
-  opacity: 0.7;
+  opacity: 0.48;
 }
 
-@keyframes drift {
+.backdrop__mist--c {
+  top: 59vh;
+  animation-duration: 88s;
+  opacity: 0.4;
+}
+
+@keyframes mist-drift {
   from {
-    transform: translateX(-10%);
+    transform: translate3d(-3%, 0, 0);
+    opacity: 0.42;
   }
   to {
-    transform: translateX(10%);
+    transform: translate3d(3%, 0, 0);
+    opacity: 0.78;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .backdrop__mist {
+    animation: none !important;
   }
 }

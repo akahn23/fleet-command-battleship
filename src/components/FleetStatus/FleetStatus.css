@@ -30,6 +30,10 @@
   font-size: 0.92rem;
 }
 
+.fleet-status__name {
+  color: var(--parchment);
+}
+
 .fleet-status__state {
   text-align: right;
   color: var(--parchment-dim);

@@ -116,6 +116,24 @@ test('layout fits the viewport with no horizontal scrolling', async ({ page }) =
   await expect(board(page, 'enemy')).toBeInViewport();
 });
 
+test('reduced motion disables the fjord mist and water animations', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto(`/?seed=${SEED}`);
+
+  const atmosphere = page.locator('.backdrop__mist, .board__water');
+  await expect(atmosphere).toHaveCount(4);
+  const animations = await atmosphere.evaluateAll((elements) =>
+    elements.map((element) => {
+      const style = window.getComputedStyle(element);
+      return { name: style.animationName, playState: style.animationPlayState };
+    }),
+  );
+
+  expect(animations.every(({ name, playState }) => name === 'none' || playState === 'paused')).toBe(
+    true,
+  );
+});
+
 test('battle: hidden enemy fleet, miss/hit markers, no turn lost on a repeated square', async ({
   page,
 }) => {

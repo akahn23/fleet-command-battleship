@@ -18,6 +18,8 @@
 .board-section h2 {
   font-size: clamp(1rem, 3vw, 1.25rem);
   color: var(--parchment);
+  letter-spacing: 0.1em;
+  text-align: center;
 }
 
 .placement-layout {
@@ -70,55 +72,132 @@
 
 /* Shared surfaces and controls */
 .panel {
+  position: relative;
   padding: var(--space-4);
-  border: 1px solid rgba(169, 120, 63, 0.35);
+  border: 1px solid rgba(201, 164, 92, 0.55);
   border-radius: calc(var(--radius) + 2px);
-  background: linear-gradient(180deg, rgba(29, 52, 64, 0.82), rgba(15, 29, 38, 0.9));
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  background:
+    radial-gradient(circle at 9px 9px, var(--bronze) 2px, transparent 3px),
+    radial-gradient(circle at calc(100% - 9px) 9px, var(--bronze) 2px, transparent 3px),
+    radial-gradient(circle at 9px calc(100% - 9px), var(--bronze) 2px, transparent 3px),
+    radial-gradient(
+      circle at calc(100% - 9px) calc(100% - 9px),
+      var(--bronze) 2px,
+      transparent 3px
+    ),
+    linear-gradient(
+      155deg,
+      rgba(54, 44, 35, 0.97),
+      rgba(24, 34, 40, 0.97) 52%,
+      rgba(13, 25, 33, 0.98)
+    );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 224, 160, 0.09),
+    inset 0 0 18px rgba(0, 0, 0, 0.34),
+    0 8px 24px rgba(0, 0, 0, 0.38);
 }
 
 .panel h2 {
+  display: grid;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
   font-size: 1.25rem;
-  color: var(--gold-muted);
+  color: var(--bronze-bright);
+  letter-spacing: 0.09em;
+}
+
+.panel h2::after {
+  width: min(100%, 210px);
+  height: 4px;
+  background:
+    repeating-linear-gradient(
+      135deg,
+      transparent 0 5px,
+      rgba(223, 185, 109, 0.68) 5px 6px,
+      transparent 6px 10px
+    ),
+    linear-gradient(90deg, rgba(201, 164, 92, 0.7), transparent);
+  content: '';
+}
+
+.panel h3 {
+  color: var(--bronze-bright);
+  letter-spacing: 0.08em;
 }
 
 .btn {
   padding: var(--space-2) var(--space-4);
-  border: 1px solid var(--bronze);
+  border: 1px solid #8d7048;
   border-radius: var(--radius);
-  background: linear-gradient(180deg, var(--iron-light), var(--iron));
+  background: linear-gradient(180deg, #41484c 0%, #272d31 54%, #1b2227 100%);
   color: var(--parchment);
   font-weight: 500;
   cursor: pointer;
   transition:
-    background 150ms ease,
+    background-color 150ms ease,
+    border-color 150ms ease,
+    box-shadow 150ms ease,
+    color 150ms ease,
     transform 100ms ease;
 }
 
 .btn:hover:not(:disabled) {
-  background: linear-gradient(180deg, #535a60, var(--iron-light));
+  border-color: var(--bronze-bright);
+  background: linear-gradient(180deg, #596167 0%, #353d42 100%);
+  color: #fff3d3;
 }
 
 .btn:active:not(:disabled) {
   transform: translateY(1px);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.55);
+}
+
+.btn:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 5px rgba(255, 227, 160, 0.24);
 }
 
 .btn:disabled {
-  opacity: 0.45;
+  border-color: #56534d;
+  background: linear-gradient(180deg, #3c3f40, #292d30);
+  color: #a8a69e;
+  opacity: 0.72;
   cursor: not-allowed;
 }
 
 .btn--primary {
-  border-color: var(--gold-muted);
-  background: linear-gradient(180deg, var(--bronze), #7d5529);
-  color: #1b1410;
+  border-color: #e2bd79;
+  background:
+    linear-gradient(180deg, rgba(255, 231, 171, 0.25), transparent 42%),
+    linear-gradient(180deg, #d2a355 0%, #a87435 52%, #76502a 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 238, 190, 0.55),
+    inset 0 -2px 0 rgba(50, 30, 12, 0.4),
+    0 2px 7px rgba(0, 0, 0, 0.3);
+  color: #21170e;
   font-family: var(--font-display);
   font-weight: 700;
   letter-spacing: 0.06em;
+  text-shadow: 0 1px rgba(255, 225, 160, 0.35);
 }
 
 .btn--primary:hover:not(:disabled) {
-  background: linear-gradient(180deg, var(--gold-muted), var(--bronze));
+  border-color: #ffe3a0;
+  background:
+    linear-gradient(180deg, rgba(255, 239, 194, 0.38), transparent 45%),
+    linear-gradient(180deg, #e0b96f 0%, #bd8a47 55%, #956731 100%);
+  color: #1b130b;
+}
+
+.btn--primary:active:not(:disabled) {
+  background: linear-gradient(180deg, #8c612f, #c28d47);
+}
+
+.btn--primary:disabled {
+  border-color: #796846;
+  background: linear-gradient(180deg, #686052, #49433a);
+  color: #c3bba8;
 }
 
 .btn--large {
@@ -156,4 +235,9 @@
 
 .btn--danger:hover:not(:disabled) {
   background: linear-gradient(180deg, #b8362c, var(--blood));
+}
+
+.btn--danger:disabled {
+  border-color: #66504c;
+  background: linear-gradient(180deg, #51413e, #382e2c);
 }

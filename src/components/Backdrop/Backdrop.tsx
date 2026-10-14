@@ -6,16 +6,21 @@ export function Backdrop() {
     <div className="backdrop" aria-hidden="true">
       <svg className="backdrop__fjord" viewBox="0 0 1440 320" preserveAspectRatio="none">
         <path
-          d="M0 320 V140 L90 80 L170 130 L260 40 L360 120 L430 90 L520 160 L600 150 L640 200 L800 200 L860 150 L940 170 L1030 70 L1120 130 L1200 60 L1300 120 L1380 90 L1440 120 V320 Z"
-          fill="#0c1820"
+          className="backdrop__ridge backdrop__ridge--far"
+          d="M0 320 V172 L92 107 L163 151 L270 34 L362 146 L434 92 L531 174 L617 124 L707 181 L825 85 L904 150 L1014 38 L1117 137 L1190 81 L1284 160 L1370 101 L1440 142 V320 Z"
         />
         <path
-          d="M0 320 V210 L120 170 L220 200 L330 150 L450 210 L560 230 L880 230 L980 190 L1100 210 L1220 160 L1340 200 L1440 180 V320 Z"
-          fill="#0a141b"
+          className="backdrop__ridge backdrop__ridge--middle"
+          d="M0 320 V218 L110 174 L206 215 L327 142 L445 208 L540 188 L650 244 L780 218 L886 240 L1001 175 L1101 223 L1222 158 L1344 216 L1440 190 V320 Z"
+        />
+        <path
+          className="backdrop__ridge backdrop__ridge--near"
+          d="M0 320 V254 L115 232 L223 258 L355 215 L480 270 L625 237 L754 276 L890 226 L1012 255 L1150 217 L1296 258 L1440 226 V320 Z"
         />
       </svg>
       <div className="backdrop__mist backdrop__mist--a" />
       <div className="backdrop__mist backdrop__mist--b" />
+      <div className="backdrop__mist backdrop__mist--c" />
     </div>
   );
 }

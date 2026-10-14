@@ -1,8 +1,11 @@
 .turn-banner {
   padding: var(--space-3) var(--space-4);
-  border: 1px solid rgba(169, 120, 63, 0.45);
+  border: 1px solid rgba(201, 164, 92, 0.62);
   border-radius: var(--radius);
-  background: linear-gradient(90deg, rgba(46, 33, 24, 0.85), rgba(29, 52, 64, 0.85));
+  background: linear-gradient(90deg, rgba(46, 33, 24, 0.92), rgba(20, 39, 48, 0.94)), var(--iron);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 224, 160, 0.08),
+    inset 0 0 16px rgba(0, 0, 0, 0.28);
   text-align: center;
 }
 
@@ -15,7 +18,7 @@
   font-size: clamp(1rem, 3vw, 1.3rem);
   font-weight: 700;
   letter-spacing: 0.05em;
-  color: var(--gold-muted);
+  color: var(--bronze-bright);
 }
 
 .turn-banner__detail {
@@ -28,7 +31,7 @@
 }
 
 .turn-banner--good {
-  border-color: var(--gold-muted);
+  border-color: var(--bronze-bright);
 }
 
 .turn-banner--bad {

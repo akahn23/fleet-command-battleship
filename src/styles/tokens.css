@@ -5,6 +5,10 @@
   --sea-teal: #2f5a5e;
   --sea-green: #4f6f66;
   --mist: #8a9ba3;
+  --fjord-far: #597889;
+  --fjord-middle: #294653;
+  --fjord-near: #142c37;
+  --wave-glint: #88aeb3;
 
   /* Wood, iron, bronze */
   --wood-dark: #2e2118;
@@ -14,6 +18,8 @@
   --iron-light: #454b50;
   --bronze: #a9783f;
   --gold-muted: #c9a45c;
+  --bronze-bright: #dfb96d;
+  --focus-ring: #ffe3a0;
 
   /* Text */
   --parchment: #e9e0c9;
