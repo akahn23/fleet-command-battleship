@@ -14,6 +14,7 @@ separately at the end.
 | BUG-005 | Keyboard focus escaped the game-over dialog              | Code review, PR #3 | `3968a75`, [PR #4](https://github.com/akahn23/fleet-command-battleship/pull/4) |
 | BUG-006 | Changing a placement after placing it moved the ship     | Code review, PR #2 | `778af09`, [PR #2](https://github.com/akahn23/fleet-command-battleship/pull/2) |
 | BUG-007 | Answering the restart prompt dropped keyboard focus      | Code review, PR #4 | PR #4                                                                          |
+| BUG-008 | Hit and miss markers were too small and faint on phones  | M2 browser review  | `a8b70b4`, [PR #5](https://github.com/akahn23/fleet-command-battleship/pull/5) |
 
 ## BUG-001 — Rules-engine tests timed out in CI
 
@@ -89,7 +90,24 @@ separately at the end.
   open, the result dialog keeps focus instead.
 - **Proof:** component tests check where focus lands after each answer.
 
+## BUG-008 — Hit and miss markers were too small and faint on phones
+
+- **Reproduction:** at 360×740, fire a few shots and wait 1.5 s for the animations to settle.
+- **What happened:** settled miss and hit markers measured about 41.8% and 39.7% of the cell width.
+  The miss ring's low-contrast color made shots hard to see on mobile.
+- **Why:** markers had 12% padding, and the miss rings used small strokes and the muted `--mist`
+  color. These settings were already present at baseline `ac45e40`, so the issue predates M2; it
+  was found during Milestone 2 browser review before merge.
+- **Fix:** reduced the marker inset, enlarged the miss rings and hit flame, and switched the miss
+  color to higher-contrast parchment.
+- **Proof:** settled miss and hit markers now measure 56.7% and 55.7% of the cell width. A mobile
+  E2E test asserts that both are at least 40%.
+- **Reference:** `a8b70b4`, [PR #5](https://github.com/akahn23/fleet-command-battleship/pull/5).
+
 ## Risks designed out from the start (not bugs)
+
+The Devin Review flag on PR #5 (reduced-motion E2E coverage stopped at placement) was a test
+coverage gap, not a bug; the battle-phase test now covers miss, hit, and sink effects.
 
 | Risk                                                                              | Safeguard                                                                                               |
 | --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |

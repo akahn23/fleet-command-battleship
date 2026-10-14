@@ -405,3 +405,16 @@ M1 is complete when **all** of the following are true:
 - [ ] README: overview, vision, how to play, stack, run, test, deploy (placeholder until M4).
 - [ ] `docs/PROJECT_PLAN.md` committed. `docs/DEBUGGING_REPORT.md` contains only verified bugs found during M1 (or explicitly states none were found yet).
 - [ ] Work is delivered through reviewable PRs with meaningful commits. I demo the running game to you.
+
+---
+
+## 11. Milestone 2 delivery (PR #5)
+
+**Delivered:**
+
+- Hunt-and-target computer opponent, limited to its own shot results and remaining ship lengths.
+- Original Norse longship artwork, Nordic atmosphere, and responsive interface polish.
+- Combat effects and feedback, including fair battle logs, fleet status, and result-screen stats.
+- Reduced-motion support, covered through battle-phase effects in browser tests.
+
+Optional sound remains a future idea and is not implemented.

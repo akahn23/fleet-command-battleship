@@ -6,7 +6,7 @@ Command a fleet of Norse longships against a computer-controlled jarl on the col
 north. The rules are classic Battleship. The look and feel are mist, fjords, weathered timber,
 and bronze.
 
-> Status: **Milestone 1 in progress**. See [docs/PROJECT_PLAN.md](docs/PROJECT_PLAN.md).
+> Status: **Milestone 2 implementation delivered in PR #5**. See [docs/PROJECT_PLAN.md](docs/PROJECT_PLAN.md).
 
 ## How to play
 
@@ -22,6 +22,24 @@ and bronze.
 
 The game is fully keyboard playable: Tab to a board, use the arrow keys to move, and press Enter
 to place or fire.
+
+## Computer opponent and battle feedback
+
+The computer uses a hunt-and-target strategy: it searches for ships, then prioritizes neighboring
+squares after a hit and continues along a known ship line. It sees only its own shot results and
+the remaining ship lengths, never hidden ship positions.
+
+Misses create water splashes and ripples; hits burst into embers and leave a flame marker. Sunk
+ships are revealed and take on a burnt, darkened appearance. Animations respect
+`prefers-reduced-motion`. Victory and defeat screens show shots fired, hits, accuracy, enemy ships
+sunk, and ships lost.
+
+## Known limitations
+
+- There are no sound effects; optional sound has not been implemented.
+- Ship placement has click controls but no drag-and-drop.
+- Refreshing starts a new game; progress is not saved.
+- There is no public URL yet; deployment is planned for Milestone 4.
 
 ## Tech stack
 
