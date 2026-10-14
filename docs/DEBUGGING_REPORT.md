@@ -35,6 +35,19 @@ the bottom, so they aren't mistaken for bugs found.
 | **Verification**       | Locally the tests dropped from 2,367 ms to 622 ms and from 3,649 ms to 1,638 ms; all 62 engine tests still pass, including the legality and fairness suites; the CI `verify` job was rerun                                                            |
 | **Reference**          | Commit `8c90bbb`, [PR #2](https://github.com/akahn23/fleet-command-battleship/pull/2)                                                                                                                                                                 |
 
+### BUG-002 — `createGame({ strategy })` silently ignored the strategy
+
+| Field                  | Detail                                                                                                                                                       |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Summary**            | `GameOptions` advertised a `strategy` field, but `createGame` discarded it                                                                                   |
+| **Found by**           | Code review (Devin Review on PR #2)                                                                                                                          |
+| **Steps to reproduce** | `createGame({ seed: 7, strategy: customAI })`, start a battle, then dispatch `COMPUTER_FIRE` through `gameReducer`                                           |
+| **Expected vs actual** | Expected `customAI` to choose the shot. Actual: `randomAI` chose it, because `gameReducer` binds its strategy when the reducer is created, not per game      |
+| **Root cause**         | Two injection points for the same thing; only `createReducer(strategy)` was wired up                                                                         |
+| **Fix**                | Removed `GameOptions.strategy` (`src/engine/game.ts`). `createReducer(strategy)` is now the single way to choose an opponent, and it survives `NEW_GAME`     |
+| **Verification**       | TypeScript now rejects the misleading call; existing `createReducer` tests in `game.test.ts` and `ai/randomAI.test.ts` confirm the injected strategy is used |
+| **Reference**          | Commit `5bb0c4d`, [PR #2](https://github.com/akahn23/fleet-command-battleship/pull/2)                                                                        |
+
 ## Risks mitigated by design (not bugs)
 
 _These are engineering risks addressed up front. They are not counted as discovered defects._
