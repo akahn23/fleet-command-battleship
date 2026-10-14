@@ -18,7 +18,7 @@ export function Marker({ coord, kind }: { coord: Coord; kind: MarkerKind }) {
             <g
               className="marker__splash"
               fill="none"
-              stroke="var(--mist)"
+              stroke="var(--parchment)"
               data-testid="splash-effect"
             >
               <circle className="marker__splash-ring" cx="20" cy="22" r="5" strokeWidth="1.5" />
@@ -32,14 +32,14 @@ export function Marker({ coord, kind }: { coord: Coord; kind: MarkerKind }) {
               <path
                 className="marker__droplet"
                 d="M12 17 Q10 13 11 10 Q14 12 13 16 Z M27 16 Q29 12 28 9 Q25 12 26 16 Z M20 12 Q18 8 20 5 Q22 8 21 12 Z M23 29 Q27 28 29 25 Q25 25 23 28 Z"
-                fill="var(--mist)"
+                fill="var(--parchment)"
                 stroke="none"
               />
             </g>
-            <g className="marker__miss-static" fill="none" stroke="var(--mist)">
-              <circle cx="20" cy="20" r="11" strokeWidth="1.5" opacity="0.6" />
-              <circle cx="20" cy="20" r="6" strokeWidth="2" />
-              <circle cx="20" cy="20" r="2" fill="var(--parchment-dim)" stroke="none" />
+            <g className="marker__miss-static" fill="none" stroke="var(--parchment)">
+              <circle cx="20" cy="20" r="11" strokeWidth="1.8" opacity="0.85" />
+              <circle cx="20" cy="20" r="6" strokeWidth="2.3" />
+              <circle cx="20" cy="20" r="2" fill="var(--parchment)" stroke="none" />
             </g>
           </>
         ) : (

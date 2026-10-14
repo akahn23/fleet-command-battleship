@@ -134,7 +134,7 @@
   pointer-events: none;
   min-width: 0;
   min-height: 0;
-  padding: 12%;
+  padding: 4%;
   animation: marker-in 260ms ease-out;
 }
 
@@ -147,6 +147,12 @@
 .marker__splash {
   transform-origin: center;
   animation: splash-fade 600ms ease-out both;
+}
+
+.marker__miss-static {
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: scale(1.12);
 }
 
 .marker__splash-ring {
@@ -182,6 +188,7 @@
 }
 
 .marker--hit .marker__flame {
+  transform-box: fill-box;
   transform-origin: center;
   animation: flicker 1.6s ease-in-out infinite alternate;
 }
@@ -199,10 +206,10 @@
 
 @keyframes flicker {
   from {
-    transform: scale(0.94) rotate(-4deg);
+    transform: scale(1.08) rotate(-4deg);
   }
   to {
-    transform: scale(1.04) rotate(4deg);
+    transform: scale(1.2) rotate(4deg);
   }
 }
 
