@@ -6,7 +6,7 @@ Command a fleet of Norse longships against a computer-controlled jarl on the col
 north. The rules are classic Battleship. The look and feel are mist, fjords, weathered timber,
 and bronze.
 
-> Status: **Milestone 2 implementation delivered in PR #5**. See [docs/PROJECT_PLAN.md](docs/PROJECT_PLAN.md).
+> Status: **Milestone 3 (QA hardening) in review**. See [docs/PROJECT_PLAN.md](docs/PROJECT_PLAN.md).
 
 ## How to play
 
@@ -87,3 +87,4 @@ BASE_PATH=/fleet-command-battleship/ npm run build   # for a GitHub Pages projec
 
 - [Project plan](docs/PROJECT_PLAN.md): requirements, rules specification, architecture, milestones
 - [Debugging report](docs/DEBUGGING_REPORT.md): verified defects with root cause, fix, and verification
+- [Third-party notices](docs/THIRD_PARTY_NOTICES.md): font and library licenses
