@@ -19,10 +19,22 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  font-size: clamp(0.85rem, 2.4vw, 1.05rem);
-  font-weight: 600;
-  letter-spacing: 0.18em;
-  color: var(--gold-muted);
+  padding: 6px 22px;
+  border-width: 1px 0;
+  border-style: solid;
+  border-image: linear-gradient(90deg, transparent, rgba(201, 164, 92, 0.6), transparent) 1;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(6, 12, 17, 0.85) 16%,
+    rgba(6, 12, 17, 0.85) 84%,
+    transparent
+  );
+  font-size: clamp(0.95rem, 2.6vw, 1.2rem);
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: #efdfb8;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.9);
   text-align: center;
 }
 
@@ -30,7 +42,7 @@
 .board-section h2::after {
   width: 36px;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(201, 164, 92, 0.7));
+  background: linear-gradient(90deg, transparent, rgba(223, 185, 109, 0.95));
   content: '';
 }
 

@@ -9,7 +9,7 @@ test('app loads with the Ravenfjord title and no console errors', async ({ page 
   expect(errors).toEqual([]);
 });
 
-test('loads the fjord backdrop assets and header emblem', async ({ page }) => {
+test('loads the harbour backdrop assets and header emblem', async ({ page }) => {
   const responses: { url: string; status: number }[] = [];
   page.on('response', (response) => {
     responses.push({ url: response.url(), status: response.status() });
@@ -21,12 +21,12 @@ test('loads the fjord backdrop assets and header emblem', async ({ page }) => {
   const backgroundImage = await page
     .locator('.backdrop')
     .evaluate((element) => getComputedStyle(element).backgroundImage);
-  expect(backgroundImage).toContain('fjord-');
+  expect(backgroundImage).toContain('harbour-');
 
-  const fjordResponses = responses.filter(({ url }) =>
-    /fjord-\d+(?:-[A-Za-z0-9_-]+)?\.(?:avif|webp)(?:[?#]|$)/.test(url),
+  const harbourResponses = responses.filter(({ url }) =>
+    /harbour-\d+(?:-[A-Za-z0-9_-]+)?\.(?:avif|webp)(?:[?#]|$)/.test(url),
   );
-  expect(fjordResponses.some(({ status }) => status === 200)).toBe(true);
+  expect(harbourResponses.some(({ status }) => status === 200)).toBe(true);
   expect(responses.filter(({ status }) => status >= 400)).toEqual([]);
 
   const raven = page.locator('svg.site-header__raven');
