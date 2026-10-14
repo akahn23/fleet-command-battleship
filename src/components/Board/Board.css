@@ -31,7 +31,10 @@
 .board {
   display: grid;
   grid-template-columns: var(--label-size) repeat(10, minmax(0, 1fr));
-  grid-template-rows: var(--label-size) repeat(10, auto);
+  /* Fixed tracks: the label strip plus ten equal rows. With equal-width columns this makes
+     every cell square, and nothing placed in a cell (ships, markers) can resize its row. */
+  grid-template-rows: var(--label-size) repeat(10, minmax(0, 1fr));
+  aspect-ratio: 1;
   position: relative;
 }
 
@@ -58,8 +61,8 @@
 .cell {
   position: relative;
   z-index: 3;
-  aspect-ratio: 1;
   min-width: 0;
+  min-height: 0;
   padding: 0;
   border: 0;
   border-right: 1px solid rgba(138, 155, 163, 0.16);
