@@ -1,0 +1,49 @@
+.battle-log h3 {
+  font-size: 1rem;
+  margin-bottom: var(--space-2);
+}
+
+.battle-log ol {
+  max-height: 220px;
+  margin: 0;
+  padding: 0 var(--space-1) 0 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.battle-log li {
+  padding: 5px 0 5px var(--space-3);
+  border-left: 2px solid var(--iron-light);
+  font-size: 0.92rem;
+}
+
+.battle-log li:first-child {
+  animation: log-in 300ms ease-out;
+}
+
+.battle-log li.tone-good {
+  border-color: var(--gold-muted);
+  color: var(--parchment);
+}
+
+.battle-log li.tone-bad {
+  border-color: var(--blood);
+  color: #e3b0a8;
+}
+
+.battle-log li.tone-neutral {
+  color: var(--parchment-dim);
+}
+
+.battle-log__empty {
+  margin: 0;
+  color: var(--parchment-dim);
+  font-style: italic;
+}
+
+@keyframes log-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}

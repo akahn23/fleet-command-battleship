@@ -1,0 +1,47 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 50% -10%, rgba(138, 155, 163, 0.35), transparent 55%),
+    linear-gradient(180deg, #1a2d38 0%, var(--sea-deep) 45%, #09131a 100%);
+}
+
+.backdrop__fjord {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 34vh;
+  opacity: 0.9;
+}
+
+.backdrop__mist {
+  position: absolute;
+  left: -50%;
+  width: 200%;
+  height: 40vh;
+  background: radial-gradient(ellipse at center, rgba(200, 210, 214, 0.1), transparent 65%);
+  animation: drift 60s linear infinite alternate;
+}
+
+.backdrop__mist--a {
+  top: 14vh;
+}
+
+.backdrop__mist--b {
+  top: 55vh;
+  animation-duration: 90s;
+  animation-direction: alternate-reverse;
+  opacity: 0.7;
+}
+
+@keyframes drift {
+  from {
+    transform: translateX(-10%);
+  }
+  to {
+    transform: translateX(10%);
+  }
+}

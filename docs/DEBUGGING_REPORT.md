@@ -48,6 +48,19 @@ the bottom, so they aren't mistaken for bugs found.
 | **Verification**       | TypeScript now rejects the misleading call; existing `createReducer` tests in `game.test.ts` and `ai/randomAI.test.ts` confirm the injected strategy is used |
 | **Reference**          | Commit `5bb0c4d`, [PR #2](https://github.com/akahn23/fleet-command-battleship/pull/2)                                                                        |
 
+### BUG-003 — Ships pushed their board rows out of alignment
+
+| Field                  | Detail                                                                                                                                                                                                                                                |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Summary**            | On "Your Waters", rows holding a horizontal ship were taller than empty rows, so ships and the squares beneath them drifted apart                                                                                                                     |
+| **Found by**           | Manual visual review of headless-browser screenshots (desktop 1440×900 and mobile 412×915)                                                                                                                                                            |
+| **Steps to reproduce** | Open `/?seed=7`, click **Auto-Place Fleet**, then **Start Battle**, and compare row label spacing on "Your Waters"                                                                                                                                    |
+| **Expected vs actual** | Expected ten equal square rows. Actual: rows 1–3 were 43 px apart, while rows 4 and 5 (each holding a ship) measured 48 px and 52 px                                                                                                                  |
+| **Root cause**         | `grid-template-rows` used `auto` tracks. Each ship is an SVG laid into the same grid, so its intrinsic height fed back into the track size, and a row with a ship grew taller than the others                                                         |
+| **Fix**                | `src/components/Board/Board.css`: fixed `minmax(0, 1fr)` tracks on an `aspect-ratio: 1` board, so cells are square and nothing inside a cell can resize its row                                                                                       |
+| **Verification**       | New Playwright test "board geometry: square cells and every ship aligned to its squares" (`e2e/gameplay.spec.ts`). With the old CSS it fails with a ship edge 10.3 px off its squares; with the fix it passes on both the desktop and mobile projects |
+| **Reference**          | Commit `988d8e9`, PR 3 (themed UI)                                                                                                                                                                                                                    |
+
 ## Risks mitigated by design (not bugs)
 
 _These are engineering risks addressed up front. They are not counted as discovered defects._

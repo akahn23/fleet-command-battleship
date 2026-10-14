@@ -1,0 +1,77 @@
+.dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  padding: var(--space-4);
+  background: rgba(8, 15, 20, 0.72);
+  backdrop-filter: blur(2px);
+  animation: fade-in 300ms ease-out;
+}
+
+.dialog {
+  width: min(440px, 100%);
+  padding: var(--space-6) var(--space-5);
+  border: 1px solid var(--bronze);
+  border-radius: calc(var(--radius) + 4px);
+  background:
+    radial-gradient(ellipse at top, rgba(201, 164, 92, 0.18), transparent 60%),
+    linear-gradient(180deg, var(--wood-dark), #1b1410);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  text-align: center;
+  animation: rise-in 400ms ease-out;
+}
+
+.dialog h2 {
+  font-size: 2.2rem;
+  color: var(--gold-muted);
+}
+
+.dialog--defeat h2 {
+  color: var(--invalid);
+}
+
+.dialog p {
+  color: var(--parchment-dim);
+}
+
+.dialog__stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-2);
+  margin: var(--space-4) 0 var(--space-5);
+}
+
+.dialog__stats dt {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--parchment-dim);
+}
+
+.dialog__stats dd {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+}
+
+.dialog__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-3);
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+  }
+}

@@ -8,6 +8,21 @@ and bronze.
 
 > Status: **Milestone 1 in progress**. See [docs/PROJECT_PLAN.md](docs/PROJECT_PLAN.md).
 
+## How to play
+
+1. **Muster your fleet.** Choose a vessel, then click your waters to moor it. Press <kbd>R</kbd>
+   or **Rotate Ship** to turn it, click a moored ship to lift it back, or use **Auto-Place Fleet**.
+   Ships must stay on the board and may not overlap. They may touch.
+2. **Start Battle** once all five are placed: Great Longship (5), Dragonship (4), War Longship (3),
+   Raider (3), Scout Ship (2).
+3. **Strike.** Click a square in enemy waters. You fire first, and turns alternate one shot each.
+   A hit does not earn another shot. Squares already fired on can't be chosen again.
+4. A sunk enemy ship is revealed. The first side to sink the whole enemy fleet wins.
+   **New Battle** starts over at any time.
+
+The game is fully keyboard playable: Tab to a board, use the arrow keys to move, and press Enter
+to place or fire.
+
 ## Tech stack
 
 - React 18 + TypeScript, built with Vite

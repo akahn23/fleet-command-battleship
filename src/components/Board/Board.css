@@ -1,0 +1,142 @@
+.board-frame {
+  --label-size: clamp(18px, 4.5vw, 26px);
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  padding: clamp(6px, 1.5vw, 12px);
+  border-radius: calc(var(--radius) + 4px);
+  background:
+    radial-gradient(circle at 10px 10px, var(--bronze) 3px, transparent 4px),
+    radial-gradient(circle at calc(100% - 10px) 10px, var(--bronze) 3px, transparent 4px),
+    radial-gradient(circle at 10px calc(100% - 10px), var(--bronze) 3px, transparent 4px),
+    radial-gradient(
+      circle at calc(100% - 10px) calc(100% - 10px),
+      var(--bronze) 3px,
+      transparent 4px
+    ),
+    linear-gradient(160deg, var(--iron-light), var(--iron) 60%);
+  box-shadow:
+    inset 0 0 0 1px rgba(201, 164, 92, 0.35),
+    0 12px 30px rgba(0, 0, 0, 0.45);
+  transition: box-shadow 250ms ease;
+}
+
+.board-frame--active {
+  box-shadow:
+    inset 0 0 0 1px rgba(201, 164, 92, 0.7),
+    0 0 0 2px rgba(201, 164, 92, 0.35),
+    0 12px 30px rgba(0, 0, 0, 0.45);
+}
+
+.board {
+  display: grid;
+  grid-template-columns: var(--label-size) repeat(10, minmax(0, 1fr));
+  /* Fixed tracks: the label strip plus ten equal rows. With equal-width columns this makes
+     every cell square, and nothing placed in a cell (ships, markers) can resize its row. */
+  grid-template-rows: var(--label-size) repeat(10, minmax(0, 1fr));
+  aspect-ratio: 1;
+  position: relative;
+}
+
+.board__water {
+  grid-row: 2 / span 10;
+  grid-column: 2 / span 10;
+  border-radius: 3px;
+  background:
+    repeating-linear-gradient(115deg, transparent 0 18px, rgba(138, 155, 163, 0.06) 18px 20px),
+    radial-gradient(ellipse at 30% 20%, var(--sea-teal), transparent 70%),
+    linear-gradient(180deg, var(--sea-slate), #16293a);
+  box-shadow: inset 0 0 18px rgba(0, 0, 0, 0.55);
+}
+
+.board__label {
+  display: grid;
+  place-items: center;
+  font-family: var(--font-display);
+  font-size: clamp(10px, 2.4vw, 13px);
+  color: var(--gold-muted);
+  user-select: none;
+}
+
+.cell {
+  position: relative;
+  z-index: 3;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-right: 1px solid rgba(138, 155, 163, 0.16);
+  border-bottom: 1px solid rgba(138, 155, 163, 0.16);
+  background: transparent;
+  cursor: pointer;
+  transition: background-color 120ms ease;
+}
+
+.cell[aria-disabled='true'] {
+  cursor: default;
+}
+
+.board-frame--active .cell:not([aria-disabled='true']):hover {
+  background: rgba(201, 164, 92, 0.22);
+  box-shadow: inset 0 0 0 1px var(--gold-muted);
+}
+
+.cell:focus-visible {
+  outline: 2px solid var(--gold-muted);
+  outline-offset: -2px;
+  z-index: 4;
+}
+
+.cell--preview-ok {
+  background: rgba(127, 179, 138, 0.4);
+}
+
+.cell--preview-bad {
+  background: rgba(208, 88, 74, 0.45);
+}
+
+.cell--sunk {
+  background: rgba(163, 39, 31, 0.22);
+}
+
+.marker {
+  position: relative;
+  z-index: 2;
+  pointer-events: none;
+  min-width: 0;
+  min-height: 0;
+  padding: 12%;
+  animation: marker-in 260ms ease-out;
+}
+
+.marker svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.marker--hit .marker__flame,
+.marker--sunk .marker__flame {
+  transform-origin: center;
+  animation: flicker 1.6s ease-in-out infinite alternate;
+}
+
+@keyframes marker-in {
+  from {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes flicker {
+  from {
+    transform: scale(0.94) rotate(-4deg);
+  }
+  to {
+    transform: scale(1.04) rotate(4deg);
+  }
+}
