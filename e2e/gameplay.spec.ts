@@ -233,7 +233,7 @@ test('reduced motion leaves atmosphere and battle effects static', async ({ page
     'sunk',
   );
   await expect(page.locator('.board__water')).toHaveCount(2);
-  await expect(page.locator('.backdrop__mist')).toHaveCount(3);
+  await expect(page.locator('.backdrop__mist')).toHaveCount(2);
 
   const reducedMotionState = await page.evaluate(() => {
     const names = (selector: string) =>

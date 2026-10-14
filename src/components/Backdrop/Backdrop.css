@@ -3,41 +3,40 @@
   inset: 0;
   z-index: -1;
   overflow: hidden;
-  background:
-    radial-gradient(ellipse at 50% 35%, rgba(204, 181, 145, 0.1), transparent 48%),
-    linear-gradient(180deg, #142936 0%, #2b4652 37%, #192f39 66%, #0a1720 100%);
+  background-color: #0b151c;
+  background-image: url('../../assets/backdrop/fjord-1920.webp');
+  background-image: image-set(
+    url('../../assets/backdrop/fjord-1920.avif') type('image/avif'),
+    url('../../assets/backdrop/fjord-1920.webp') type('image/webp')
+  );
+  background-position: 50% 30%;
+  background-size: cover;
+}
+
+@media (max-width: 800px) {
+  .backdrop {
+    background-image: url('../../assets/backdrop/fjord-960.webp');
+    background-image: image-set(
+      url('../../assets/backdrop/fjord-960.avif') type('image/avif'),
+      url('../../assets/backdrop/fjord-960.webp') type('image/webp')
+    );
+  }
 }
 
 .backdrop::after {
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at center, transparent 32%, rgba(3, 9, 14, 0.58) 100%);
+  background:
+    radial-gradient(ellipse at 50% 40%, transparent 45%, rgba(4, 9, 13, 0.5) 100%),
+    linear-gradient(
+      180deg,
+      rgba(6, 12, 17, 0.3),
+      transparent 26%,
+      transparent 64%,
+      rgba(6, 12, 17, 0.6)
+    );
   content: '';
   pointer-events: none;
-}
-
-.backdrop__fjord {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 57vh;
-}
-
-.backdrop__ridge--far {
-  fill: var(--fjord-far);
-  opacity: 0.54;
-  filter: blur(1px);
-}
-
-.backdrop__ridge--middle {
-  fill: var(--fjord-middle);
-  opacity: 0.74;
-}
-
-.backdrop__ridge--near {
-  fill: var(--fjord-near);
-  opacity: 0.92;
 }
 
 .backdrop__mist {
@@ -47,25 +46,18 @@
   height: 13vh;
   background: radial-gradient(ellipse at center, rgba(202, 216, 220, 0.13), transparent 69%);
   animation: mist-drift 60s ease-in-out infinite alternate;
-  opacity: 0.66;
+  opacity: 0.45;
   pointer-events: none;
 }
 
 .backdrop__mist--a {
-  top: 19vh;
+  top: 50vh;
 }
 
 .backdrop__mist--b {
-  top: 39vh;
+  top: 60vh;
   animation-duration: 76s;
   animation-direction: alternate-reverse;
-  opacity: 0.48;
-}
-
-.backdrop__mist--c {
-  top: 59vh;
-  animation-duration: 88s;
-  opacity: 0.4;
 }
 
 @keyframes mist-drift {
