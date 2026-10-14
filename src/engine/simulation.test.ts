@@ -1,4 +1,3 @@
-import { isFleetDestroyed } from './board';
 import { isInBounds } from './coords';
 import { FLEET } from './fleet';
 import { createGame, gameReducer, type GameAction } from './game';
@@ -37,13 +36,32 @@ function assertUniqueShots(board: Board) {
   expect(new Set(coordinates).size).toBe(coordinates.length);
 }
 
+function fleetIsDestroyed(board: Board) {
+  if (board.ships.length === 0) return false;
+  const hits = new Set(
+    board.shots.filter(({ result }) => result === 'hit').map(({ coord }) => key(coord)),
+  );
+
+  return board.ships.every((ship) => {
+    const { length } = FLEET.find(({ id }) => id === ship.shipId)!;
+    for (let index = 0; index < length; index++) {
+      const coord =
+        ship.orientation === 'horizontal'
+          ? { row: ship.origin.row, col: ship.origin.col + index }
+          : { row: ship.origin.row + index, col: ship.origin.col };
+      if (!hits.has(key(coord))) return false;
+    }
+    return true;
+  });
+}
+
 function assertStateInvariants(state: GameState) {
   assertUniqueShots(state.boards.player);
   assertUniqueShots(state.boards.computer);
 
-  for (let index = 1; index < state.log.length; index++) {
-    expect(state.log[index]!.id).toBe(state.log[index - 1]!.id + 1);
-  }
+  expect(
+    state.log.every((event, index) => index === 0 || event.id === state.log[index - 1]!.id + 1),
+  ).toBe(true);
 
   const gameOverEvents = state.log.filter((event) => event.kind === 'gameOver');
   expect(gameOverEvents.length).toBeLessThanOrEqual(1);
@@ -52,7 +70,7 @@ function assertStateInvariants(state: GameState) {
   }
 
   const destroyed =
-    isFleetDestroyed(state.boards.player) || isFleetDestroyed(state.boards.computer);
+    fleetIsDestroyed(state.boards.player) || fleetIsDestroyed(state.boards.computer);
   expect(state.phase === 'gameOver').toBe(destroyed);
 
   const shotCount = state.boards.player.shots.length + state.boards.computer.shots.length;
@@ -97,9 +115,8 @@ function expectIllegalBattleActionsToPreserveState(state: GameState) {
   if (alreadyFired) actions.push({ type: 'PLAYER_FIRE', coord: alreadyFired });
 
   if (state.turn === 'computer') {
-    const openCell = allCells.find(
-      (coord) => !state.boards.computer.shots.some((shot) => key(shot.coord) === key(coord)),
-    );
+    const fired = new Set(state.boards.computer.shots.map(({ coord }) => key(coord)));
+    const openCell = allCells.find((coord) => !fired.has(key(coord)));
     expect(openCell).toBeDefined();
     actions.push(
       { type: 'PLAYER_FIRE', coord: openCell! },
