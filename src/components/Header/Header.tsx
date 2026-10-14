@@ -32,13 +32,54 @@ export function Header({ confirming, onNewGame, onConfirm, onCancel }: HeaderPro
   return (
     <header className="site-header">
       <div className="site-header__brand">
-        <svg className="site-header__raven" viewBox="0 0 48 48" aria-hidden="true">
-          <circle cx="24" cy="24" r="22" fill="none" stroke="var(--bronze)" strokeWidth="2" />
+        <svg
+          className="site-header__raven"
+          viewBox="0 0 64 64"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <defs>
+            <linearGradient id="rf-banner-field" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stopColor="#e9e0c9" />
+              <stop offset="1" stopColor="#c9b48a" />
+            </linearGradient>
+          </defs>
+          <path fill="none" stroke="#a9783f" strokeWidth="2.4" strokeLinecap="round" d="M6 5 V62" />
+          <path fill="#dfb96d" d="M6 0.5 L8.5 3.5 L6 6.5 L3.5 3.5 Z" />
           <path
-            d="M10 28 C16 22 22 20 28 21 L34 15 L33 21 C37 22 39 25 40 28 C35 26 31 27 28 30 L24 36 L23 30 C19 30 14 30 10 28 Z"
-            fill="var(--parchment)"
+            fill="url(#rf-banner-field)"
+            stroke="#a9783f"
+            strokeWidth="1.6"
+            strokeLinejoin="round"
+            d="M7 7 H59 C55 32 34 50 7 59 Z"
           />
-          <circle cx="32" cy="19.5" r="1" fill="var(--sea-deep)" />
+          <path
+            fill="none"
+            stroke="#a9783f"
+            strokeWidth="0.7"
+            opacity="0.7"
+            d="M10 10 H54.5 C50.5 31 32 46 10 54.5 Z"
+          />
+          <path
+            fill="#0f1d26"
+            d="M51 21.5 L42 14.5 Q37.5 10.5 31.5 11.5 Q25.5 12.5 22 18.5 L16 28 L9.5 39.5 L15 40 L14 44 L22 37.5 Q30 36.5 35 31 L38 27 L40.5 26 L39.6 24.8 L42.2 24 L41.4 22.9 L44 22.4 Z"
+          />
+          <path
+            fill="none"
+            stroke="#d9cba8"
+            strokeWidth="1.1"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M22.5 22.5 Q31 21.5 35.5 28 M20 27.5 Q26 27.5 29.5 31.5 M17.5 32 Q21.5 32.5 24 35"
+          />
+          <circle cx="37.2" cy="16.6" r="1.15" fill="#dfb96d" />
+          <path
+            fill="none"
+            stroke="#0f1d26"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+            d="M27.5 36.5 L26.5 44 M31.5 35 L32.5 44 M24.5 44.5 H35"
+          />
         </svg>
         <div>
           <h1>Ravenfjord</h1>
