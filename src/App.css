@@ -16,10 +16,26 @@
 }
 
 .board-section h2 {
-  font-size: clamp(1rem, 3vw, 1.25rem);
-  color: var(--parchment);
-  letter-spacing: 0.1em;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: clamp(0.85rem, 2.4vw, 1.05rem);
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  color: var(--gold-muted);
   text-align: center;
+}
+
+.board-section h2::before,
+.board-section h2::after {
+  width: 36px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(201, 164, 92, 0.7));
+  content: '';
+}
+
+.board-section h2::after {
+  transform: scaleX(-1);
 }
 
 .placement-layout {
@@ -73,50 +89,33 @@
 /* Shared surfaces and controls */
 .panel {
   position: relative;
-  padding: var(--space-4);
-  border: 1px solid rgba(201, 164, 92, 0.55);
-  border-radius: calc(var(--radius) + 2px);
+  padding: var(--space-4) clamp(var(--space-3), 3vw, var(--space-5));
+  border: 1px solid rgba(169, 120, 63, 0.5);
+  border-radius: 3px;
   background:
-    radial-gradient(circle at 9px 9px, var(--bronze) 2px, transparent 3px),
-    radial-gradient(circle at calc(100% - 9px) 9px, var(--bronze) 2px, transparent 3px),
-    radial-gradient(circle at 9px calc(100% - 9px), var(--bronze) 2px, transparent 3px),
-    radial-gradient(
-      circle at calc(100% - 9px) calc(100% - 9px),
-      var(--bronze) 2px,
-      transparent 3px
-    ),
-    linear-gradient(
-      155deg,
-      rgba(54, 44, 35, 0.97),
-      rgba(24, 34, 40, 0.97) 52%,
-      rgba(13, 25, 33, 0.98)
-    );
+    var(--corner-tl) top 3px left 3px / 14px no-repeat,
+    var(--corner-tr) top 3px right 3px / 14px no-repeat,
+    var(--corner-bl) bottom 3px left 3px / 14px no-repeat,
+    var(--corner-br) bottom 3px right 3px / 14px no-repeat,
+    linear-gradient(180deg, rgba(17, 29, 36, 0.92), rgba(10, 19, 25, 0.94));
   box-shadow:
-    inset 0 1px 0 rgba(255, 224, 160, 0.09),
-    inset 0 0 18px rgba(0, 0, 0, 0.34),
-    0 8px 24px rgba(0, 0, 0, 0.38);
+    inset 0 1px 0 rgba(255, 224, 160, 0.06),
+    0 12px 30px rgba(0, 0, 0, 0.4);
 }
 
 .panel h2 {
   display: grid;
-  gap: var(--space-2);
+  gap: 6px;
   margin-bottom: var(--space-3);
-  font-size: 1.25rem;
+  font-size: 1.05rem;
   color: var(--bronze-bright);
-  letter-spacing: 0.09em;
+  letter-spacing: 0.16em;
 }
 
 .panel h2::after {
-  width: min(100%, 210px);
-  height: 4px;
-  background:
-    repeating-linear-gradient(
-      135deg,
-      transparent 0 5px,
-      rgba(223, 185, 109, 0.68) 5px 6px,
-      transparent 6px 10px
-    ),
-    linear-gradient(90deg, rgba(201, 164, 92, 0.7), transparent);
+  width: min(100%, 160px);
+  height: 1px;
+  background: linear-gradient(90deg, rgba(201, 164, 92, 0.75), transparent);
   content: '';
 }
 
@@ -127,11 +126,14 @@
 
 .btn {
   padding: var(--space-2) var(--space-4);
-  border: 1px solid #8d7048;
-  border-radius: var(--radius);
-  background: linear-gradient(180deg, #41484c 0%, #272d31 54%, #1b2227 100%);
+  border: 1px solid rgba(201, 164, 92, 0.6);
+  border-radius: 2px;
+  background: linear-gradient(180deg, rgba(30, 44, 52, 0.9), rgba(16, 27, 34, 0.92));
   color: var(--parchment);
+  font-size: 0.9rem;
   font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   cursor: pointer;
   transition:
     background-color 150ms ease,
@@ -143,7 +145,8 @@
 
 .btn:hover:not(:disabled) {
   border-color: var(--bronze-bright);
-  background: linear-gradient(180deg, #596167 0%, #353d42 100%);
+  background: linear-gradient(180deg, rgba(58, 70, 72, 0.9), rgba(28, 38, 44, 0.92));
+  box-shadow: 0 0 0 3px rgba(223, 185, 109, 0.12);
   color: #fff3d3;
 }
 
@@ -168,25 +171,24 @@
 
 .btn--primary {
   border-color: #e2bd79;
-  background:
-    linear-gradient(180deg, rgba(255, 231, 171, 0.25), transparent 42%),
-    linear-gradient(180deg, #d2a355 0%, #a87435 52%, #76502a 100%);
+  background: linear-gradient(180deg, #d3a65c 0%, #a8783c 55%, #80592d 100%);
   box-shadow:
-    inset 0 1px 0 rgba(255, 238, 190, 0.55),
-    inset 0 -2px 0 rgba(50, 30, 12, 0.4),
-    0 2px 7px rgba(0, 0, 0, 0.3);
+    inset 0 1px 0 rgba(255, 238, 190, 0.5),
+    0 4px 14px rgba(0, 0, 0, 0.35);
   color: #21170e;
   font-family: var(--font-display);
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.12em;
   text-shadow: 0 1px rgba(255, 225, 160, 0.35);
 }
 
 .btn--primary:hover:not(:disabled) {
   border-color: #ffe3a0;
-  background:
-    linear-gradient(180deg, rgba(255, 239, 194, 0.38), transparent 45%),
-    linear-gradient(180deg, #e0b96f 0%, #bd8a47 55%, #956731 100%);
+  background: linear-gradient(180deg, #e2b96f 0%, #bd8a47 55%, #956731 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 238, 190, 0.6),
+    0 0 0 3px rgba(223, 185, 109, 0.22),
+    0 4px 14px rgba(0, 0, 0, 0.35);
   color: #1b130b;
 }
 

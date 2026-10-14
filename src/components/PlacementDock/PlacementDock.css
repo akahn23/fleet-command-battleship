@@ -35,10 +35,10 @@ kbd {
   align-items: center;
   gap: 2px var(--space-3);
   width: 100%;
-  padding: var(--space-2) var(--space-3);
-  border: 1px solid rgba(169, 120, 63, 0.58);
-  border-radius: var(--radius);
-  background: linear-gradient(110deg, rgba(20, 27, 31, 0.88), rgba(11, 24, 31, 0.82));
+  padding: 10px var(--space-3) 10px var(--space-4);
+  border: 1px solid rgba(169, 120, 63, 0.4);
+  border-radius: 2px;
+  background: linear-gradient(90deg, rgba(16, 27, 34, 0.9), rgba(12, 22, 28, 0.85));
   color: var(--parchment);
   text-align: left;
   cursor: pointer;
@@ -50,8 +50,8 @@ kbd {
 }
 
 .dock__ship:hover:not(:disabled) {
-  border-color: var(--bronze-bright);
-  background: linear-gradient(110deg, rgba(77, 59, 40, 0.88), rgba(28, 43, 49, 0.88));
+  border-color: rgba(223, 185, 109, 0.75);
+  background: linear-gradient(90deg, rgba(46, 40, 32, 0.9), rgba(16, 28, 34, 0.88));
 }
 
 .dock__ship:active:not(:disabled) {
@@ -70,16 +70,15 @@ kbd {
 
 .dock__ship[aria-pressed='true'] {
   border-color: var(--bronze-bright);
-  background: linear-gradient(100deg, rgba(123, 82, 38, 0.55), rgba(43, 55, 58, 0.82));
-  box-shadow:
-    inset 3px 0 0 var(--bronze-bright),
-    inset 0 0 12px rgba(223, 185, 109, 0.08);
+  background: linear-gradient(90deg, rgba(110, 76, 38, 0.45), rgba(16, 28, 34, 0.88));
+  box-shadow: inset 3px 0 0 var(--bronze-bright);
 }
 
 .dock__ship-name {
   grid-area: name;
   font-family: var(--font-display);
   font-weight: 600;
+  letter-spacing: 0.06em;
 }
 
 .dock__ship .pips {

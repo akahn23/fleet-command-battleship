@@ -4,34 +4,31 @@
   width: 100%;
   max-width: 480px;
   padding: clamp(6px, 1.5vw, 12px);
-  border: 1px solid var(--bronze);
-  border-radius: calc(var(--radius) + 4px);
+  border: 1px solid rgba(169, 120, 63, 0.7);
+  border-radius: 3px;
   background:
-    radial-gradient(circle at 10px 10px, var(--bronze) 3px, transparent 4px),
-    radial-gradient(circle at calc(100% - 10px) 10px, var(--bronze) 3px, transparent 4px),
-    radial-gradient(circle at 10px calc(100% - 10px), var(--bronze) 3px, transparent 4px),
-    radial-gradient(
-      circle at calc(100% - 10px) calc(100% - 10px),
-      var(--bronze) 3px,
-      transparent 4px
-    ),
-    linear-gradient(160deg, #755539 0%, #4a3628 11%, #2b2925 20%, #1b2429 57%, #63482f 100%);
+    var(--corner-tl) top 2px left 2px / clamp(12px, 3vw, 18px) no-repeat,
+    var(--corner-tr) top 2px right 2px / clamp(12px, 3vw, 18px) no-repeat,
+    var(--corner-bl) bottom 2px left 2px / clamp(12px, 3vw, 18px) no-repeat,
+    var(--corner-br) bottom 2px right 2px / clamp(12px, 3vw, 18px) no-repeat,
+    linear-gradient(180deg, rgba(16, 27, 34, 0.96), rgba(10, 19, 25, 0.97));
   box-shadow:
-    inset 0 0 0 2px rgba(16, 22, 26, 0.8),
-    inset 0 0 0 4px rgba(201, 164, 92, 0.52),
-    inset 0 0 0 6px rgba(35, 28, 23, 0.9),
-    inset 0 10px 14px rgba(236, 190, 112, 0.07),
-    0 12px 30px rgba(0, 0, 0, 0.45);
-  transition: box-shadow 250ms ease;
+    inset 0 0 0 3px rgba(10, 18, 23, 0.9),
+    inset 0 0 0 4px rgba(201, 164, 92, 0.28),
+    0 18px 40px rgba(0, 0, 0, 0.5);
+  transition:
+    box-shadow 250ms ease,
+    border-color 250ms ease;
 }
 
 .board-frame--active {
+  border-color: var(--bronze-bright);
   box-shadow:
-    inset 0 0 0 2px rgba(16, 22, 26, 0.8),
-    inset 0 0 0 4px rgba(223, 185, 109, 0.84),
-    inset 0 0 0 6px rgba(35, 28, 23, 0.9),
-    0 0 0 2px rgba(223, 185, 109, 0.42),
-    0 12px 30px rgba(0, 0, 0, 0.45);
+    inset 0 0 0 3px rgba(10, 18, 23, 0.9),
+    inset 0 0 0 4px rgba(223, 185, 109, 0.55),
+    0 0 0 1px rgba(223, 185, 109, 0.25),
+    0 0 28px rgba(223, 185, 109, 0.14),
+    0 18px 40px rgba(0, 0, 0, 0.5);
 }
 
 .board {
@@ -47,43 +44,23 @@
 .board__water {
   grid-row: 2 / span 10;
   grid-column: 2 / span 10;
-  border-radius: 3px;
+  border-radius: 2px;
   background:
-    repeating-linear-gradient(
-      118deg,
-      transparent 0 24px,
-      rgba(136, 174, 179, 0.1) 24px 26px,
-      transparent 26px 47px
-    ),
-    radial-gradient(ellipse at 30% 20%, rgba(47, 90, 94, 0.9), transparent 72%),
-    linear-gradient(180deg, #1b3b47, #142b38 75%, #193642);
-  background-position:
-    0 0,
-    0 0,
-    0 0;
-  background-size:
-    220px 100%,
-    auto,
-    auto;
-  animation: water-drift 38s linear infinite;
-  box-shadow: inset 0 0 18px rgba(0, 0, 0, 0.55);
-}
-
-@keyframes water-drift {
-  to {
-    background-position:
-      220px 0,
-      0 0,
-      0 0;
-  }
+    radial-gradient(ellipse at 50% 45%, rgba(58, 104, 108, 0.55), transparent 70%),
+    repeating-linear-gradient(0deg, transparent 0 6px, rgba(136, 174, 179, 0.035) 6px 7px),
+    linear-gradient(180deg, #17343f, #112a35 70%, #142f3a);
+  box-shadow:
+    inset 0 0 0 1px rgba(201, 164, 92, 0.35),
+    inset 0 0 22px rgba(0, 0, 0, 0.5);
 }
 
 .board__label {
   display: grid;
   place-items: center;
   font-family: var(--font-display);
-  font-size: clamp(10px, 2.4vw, 13px);
-  color: var(--bronze-bright);
+  font-size: clamp(9px, 2.2vw, 12px);
+  letter-spacing: 0.04em;
+  color: var(--gold-muted);
   user-select: none;
 }
 
@@ -94,8 +71,8 @@
   min-height: 0;
   padding: 0;
   border: 0;
-  border-right: 1px solid rgba(185, 207, 211, 0.34);
-  border-bottom: 1px solid rgba(185, 207, 211, 0.34);
+  border-right: 1px solid rgba(185, 207, 211, 0.2);
+  border-bottom: 1px solid rgba(185, 207, 211, 0.2);
   background: transparent;
   cursor: pointer;
   transition: background-color 120ms ease;
@@ -106,8 +83,8 @@
 }
 
 .board-frame--active .cell:not([aria-disabled='true']):hover {
-  background: rgba(223, 185, 109, 0.3);
-  box-shadow: inset 0 0 0 2px var(--focus-ring);
+  background: rgba(223, 185, 109, 0.2);
+  box-shadow: inset 0 0 0 2px rgba(255, 227, 160, 0.85);
 }
 
 .cell:focus-visible {
@@ -286,7 +263,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .board__water,
   .marker,
   .marker__splash,
   .marker__splash-ring,
