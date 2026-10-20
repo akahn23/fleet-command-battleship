@@ -160,8 +160,11 @@ export default function App({
     setIntroOpen(true);
   };
 
+  const dialogOpen = phase === 'gameOver' && dismissedGameId !== state.gameId;
+  const pageInert = dialogOpen || introOpen;
+
   useEffect(() => {
-    if (phase !== 'placement') return;
+    if (phase !== 'placement' || pageInert) return;
     const onKey = (event: KeyboardEvent) => {
       if (event.key.toLowerCase() === 'r' && !event.ctrlKey && !event.metaKey && !event.altKey) {
         rotate();
@@ -169,10 +172,8 @@ export default function App({
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [phase, rotate]);
+  }, [pageInert, phase, rotate]);
 
-  const dialogOpen = phase === 'gameOver' && dismissedGameId !== state.gameId;
-  const pageInert = dialogOpen || introOpen;
   const dialogWasOpen = useRef(false);
 
   useEffect(() => {

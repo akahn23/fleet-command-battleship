@@ -42,4 +42,19 @@ describe('How to Play intro', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(document.activeElement).toBe(reopen);
   });
+
+  it('blocks the R shortcut while the intro is open and allows it after Begin', () => {
+    const { rerender } = render(<App seed={7} showIntro={false} />);
+    fireEvent.click(screen.getByRole('button', { name: /Dragonship/ }));
+    expect(screen.getByRole('button', { name: 'Rotate Ship (horizontal)' })).toBeInTheDocument();
+
+    rerender(<App seed={7} showIntro />);
+    const begin = screen.getByRole('button', { name: 'Begin' });
+    fireEvent.keyDown(window, { key: 'r' });
+    expect(screen.getByRole('button', { name: 'Rotate Ship (horizontal)' })).toBeInTheDocument();
+
+    fireEvent.click(begin);
+    fireEvent.keyDown(window, { key: 'r' });
+    expect(screen.getByRole('button', { name: 'Rotate Ship (vertical)' })).toBeInTheDocument();
+  });
 });

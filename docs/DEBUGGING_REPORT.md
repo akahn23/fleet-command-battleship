@@ -1,6 +1,6 @@
 # Ravenfjord — Bugs Found and Fixed
 
-Every real defect found while building Ravenfjord across Milestones 1–3 is listed here: what went
+Every real defect found while building Ravenfjord across Milestones 1–5 is listed here: what went
 wrong, how to reproduce it, why it happened, how it was fixed, and how the fix was proven. Nothing
 here is hypothetical. Risks that were designed out in advance, and areas that were tested without
 finding a defect, are listed separately at the end.
@@ -42,6 +42,7 @@ Severity: **P0** game-breaking or wrong outcome · **P1** gameplay, AI, turn or 
 | BUG-010 | P2   | Harbour backdrop PR merged but never reached `main`          | Post-merge QA              | [PR #8](https://github.com/akahn23/fleet-command-battleship/pull/8) (`929ae90`) |
 | BUG-011 | P2   | Battle log could not be scrolled by keyboard                 | M3 axe-core scan           | `3bfc345`, M3 PR                                                                |
 | BUG-012 | P2   | Sunk-ship rows in the fleet panels failed contrast           | M3 measured contrast check | `3bfc345`, M3 PR                                                                |
+| BUG-013 | P2   | R rotated a ship behind the How to Play dialog               | M5 browser QA, PR #11      | M5 regression test                                                              |
 
 ---
 
@@ -219,6 +220,21 @@ Severity: **P0** game-breaking or wrong outcome · **P1** gameplay, AI, turn or 
   secondary colour, and the label uses a lighter red (`#e58a7e`).
 - **Verification:** the ship name now measures 8.78:1 and the label 7.38:1. A browser test computes
   both ratios on a real sunk row and requires at least 4.5:1. It failed at 4.43:1 before the fix.
+
+## BUG-013 — R rotated a ship behind the How to Play dialog (P2, low)
+
+- **Severity:** low.
+- **Problem:** the placement rotation shortcut could change a ship while the How to Play dialog was
+  open.
+- **Reproduce:** during placement, open How to Play and press `R`.
+- **Expected vs actual:** the modal should isolate the keyboard, but the rotation shortcut fired
+  behind it.
+- **Root cause:** a global `window` keydown listener isn't blocked by `inert`, and the shortcut
+  handler checked only the game phase.
+- **Fix and verification:** the handler now returns while the page is inert. A regression test
+  confirms `R` leaves the orientation unchanged with the dialog open and rotates after Begin closes
+  it.
+- **Found by:** M5 browser QA on PR #11.
 
 ---
 
