@@ -205,8 +205,7 @@ fleet-command-battleship/
 
 1. **No separate title screen (decided).** At your request, a dismissible How to Play pop-up now
    opens on the first visit. The game opens straight onto fleet placement under the RAVENFJORD
-   header, which carries the wordmark and tagline ("A Viking war of Battleship upon the northern
-   sea").
+   header, which carries the wordmark and tagline ("A Viking Battleship war upon the northern sea").
 2. **Fleet placement ("Muster the Fleet"):**
    - On the left is the **dock**: the five ships as cards with silhouette, name, and length. Pick one to select it.
    - On the board, hovering shows a **ghost preview** of the selected ship. The tint is pale green if valid and red if invalid, and the reason is shown ("Out of bounds" / "Overlaps Dragonship").

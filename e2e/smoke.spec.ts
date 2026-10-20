@@ -7,7 +7,7 @@ test('app loads with the Ravenfjord title and no console errors', async ({ page 
   await page.goto('/');
   await expect(page.getByRole('heading', { level: 1, name: /ravenfjord/i })).toBeVisible();
   await expect(page.locator('.site-header__tagline')).toHaveText(
-    'A Viking war of Battleship upon the northern sea',
+    'A Viking Battleship war upon the northern sea',
   );
   expect(errors).toEqual([]);
 });

@@ -1,6 +1,6 @@
 # Ravenfjord
 
-**A Viking war of Battleship upon the northern sea.**
+**A Viking Battleship war upon the northern sea.**
 
 ### [▶ Play Ravenfjord](https://ravenfjord.vercel.app)
 

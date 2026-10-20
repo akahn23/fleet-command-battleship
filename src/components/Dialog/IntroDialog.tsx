@@ -47,11 +47,11 @@ export function IntroDialog({ onClose }: IntroDialogProps) {
               <h3>Muster your fleet</h3>
               <p>
                 Place your five ships one at a time: <span className="only-fine">Click</span>
-                <span className="only-coarse">Tap</span> your waters, rotate with{' '}
+                <span className="only-coarse">Tap</span> your grid, rotate with{' '}
                 <span className="only-fine">R or </span>
                 Rotate Ship, and <span className="only-fine">drag a moored ship</span>
                 <span className="only-coarse">drag with your finger</span> to move it. Or use
-                Auto-Place, then press Start Battle.
+                Auto-Place to place all ships at once, then press Start Battle.
               </p>
             </div>
           </li>
@@ -104,8 +104,8 @@ export function IntroDialog({ onClose }: IntroDialogProps) {
             <div>
               <h3>Sink the whole fleet</h3>
               <p>
-                A ship sinks when every square is hit. The first side to sink all five enemy ships
-                wins.
+                A ship sinks when each of its squares are hit. The first side to sink all five enemy
+                ships wins.
               </p>
             </div>
           </li>

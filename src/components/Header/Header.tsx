@@ -95,7 +95,7 @@ export function Header({
         </svg>
         <div>
           <h1>Ravenfjord</h1>
-          <p className="site-header__tagline">A Viking war of Battleship upon the northern sea</p>
+          <p className="site-header__tagline">A Viking Battleship war upon the northern sea</p>
         </div>
       </div>
       <div className="site-header__actions">
