@@ -106,6 +106,15 @@ function expectIllegalBattleActionsToPreserveState(state: GameState) {
         orientation: 'horizontal',
       },
     },
+    {
+      type: 'MOVE_SHIP',
+      shipId: 'greatLongship',
+      placement: {
+        shipId: 'greatLongship',
+        origin: { row: 2, col: 2 },
+        orientation: 'horizontal',
+      },
+    },
     { type: 'REMOVE_SHIP', shipId: 'greatLongship' },
     { type: 'AUTO_PLACE' },
     { type: 'CLEAR_FLEET' },

@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 
 test('app loads with the Ravenfjord title and no console errors', async ({ page }) => {
   const errors: string[] = [];
@@ -6,6 +6,9 @@ test('app loads with the Ravenfjord title and no console errors', async ({ page 
   page.on('pageerror', (err) => errors.push(err.message));
   await page.goto('/');
   await expect(page.getByRole('heading', { level: 1, name: /ravenfjord/i })).toBeVisible();
+  await expect(page.locator('.site-header__tagline')).toHaveText(
+    'A Viking war of Battleship upon the northern sea',
+  );
   expect(errors).toEqual([]);
 });
 

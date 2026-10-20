@@ -16,10 +16,16 @@ interface ShipSpriteProps {
   placement: ShipPlacement;
   variant?: ShipVariant;
   revealSunk?: boolean;
+  dragging?: boolean;
 }
 
 /** A longship laid into the board's own grid, so it always covers exactly its cells. */
-export function ShipSprite({ placement, variant = 'afloat', revealSunk = false }: ShipSpriteProps) {
+export function ShipSprite({
+  placement,
+  variant = 'afloat',
+  revealSunk = false,
+  dragging = false,
+}: ShipSpriteProps) {
   const { length } = getShip(placement.shipId);
   const vertical = placement.orientation === 'vertical';
   const { row, col } = placement.origin;
@@ -31,7 +37,7 @@ export function ShipSprite({ placement, variant = 'afloat', revealSunk = false }
 
   return (
     <div
-      className={`ship ship--${placement.orientation} ship--${variant}${revealSunk ? ' ship--sunk-reveal' : ''}`}
+      className={`ship ship--${placement.orientation} ship--${variant}${revealSunk ? ' ship--sunk-reveal' : ''}${dragging ? ' ship--dragging' : ''}`}
       style={{
         gridRow: `${row + 2} / span ${vertical ? length : 1}`,
         gridColumn: `${col + 2} / span ${vertical ? 1 : length}`,

@@ -2,6 +2,7 @@ import {
   emptyBoard,
   isFleetComplete,
   isFleetDestroyed,
+  canPlaceShip,
   placeShip,
   receiveShot,
   removeShip,
@@ -15,6 +16,7 @@ import type { Coord, GameState, LogEvent, ShipId, ShipPlacement, Side } from './
 
 export type GameAction =
   | { type: 'PLACE_SHIP'; placement: ShipPlacement }
+  | { type: 'MOVE_SHIP'; shipId: ShipId; placement: ShipPlacement }
   | { type: 'REMOVE_SHIP'; shipId: ShipId }
   | { type: 'AUTO_PLACE' }
   | { type: 'CLEAR_FLEET' }
@@ -89,6 +91,20 @@ export function createReducer(strategy: TargetingStrategy = huntTargetAI) {
       case 'PLACE_SHIP': {
         if (state.phase !== 'placement') return state;
         const board = placeShip(state.boards.player, action.placement);
+        return board ? { ...state, boards: { ...state.boards, player: board } } : state;
+      }
+      case 'MOVE_SHIP': {
+        const currentBoard = state.boards.player;
+        if (
+          state.phase !== 'placement' ||
+          action.placement.shipId !== action.shipId ||
+          !currentBoard.ships.some((ship) => ship.shipId === action.shipId)
+        ) {
+          return state;
+        }
+        const boardWithoutShip = removeShip(currentBoard, action.shipId);
+        if (!boardWithoutShip || !canPlaceShip(boardWithoutShip, action.placement).ok) return state;
+        const board = placeShip(boardWithoutShip, action.placement);
         return board ? { ...state, boards: { ...state.boards, player: board } } : state;
       }
       case 'REMOVE_SHIP': {

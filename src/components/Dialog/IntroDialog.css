@@ -1,0 +1,121 @@
+.intro-dialog-backdrop {
+  z-index: 30;
+}
+
+.intro-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  width: min(960px, 100%);
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+  padding: var(--space-5);
+  text-align: left;
+}
+
+.intro-dialog h2 {
+  text-align: center;
+}
+
+.intro-dialog__steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: intro-step;
+}
+
+.intro-dialog__step {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr);
+  align-content: start;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: var(--space-3);
+  border: 1px solid rgba(169, 120, 63, 0.45);
+  border-radius: 3px;
+  background: linear-gradient(180deg, rgba(17, 29, 36, 0.82), rgba(10, 19, 25, 0.88));
+  counter-increment: intro-step;
+}
+
+.intro-dialog__step::before {
+  grid-column: 1 / -1;
+  color: var(--bronze-bright);
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  content: counter(intro-step, decimal-leading-zero);
+}
+
+.intro-dialog__step svg {
+  width: 36px;
+  height: 36px;
+  color: var(--gold-muted);
+}
+
+.intro-dialog__step h3 {
+  margin: 0 0 var(--space-1);
+  color: var(--bronze-bright);
+  font-size: 0.94rem;
+  line-height: 1.25;
+}
+
+.intro-dialog__step p {
+  margin: 0;
+  color: var(--parchment-dim);
+  font-size: 0.94rem;
+  line-height: 1.35;
+}
+
+.intro-dialog__actions {
+  display: flex;
+  justify-content: center;
+}
+
+.only-coarse {
+  display: none;
+}
+
+@media (pointer: coarse) {
+  .only-fine {
+    display: none;
+  }
+
+  .only-coarse {
+    display: inline;
+  }
+}
+
+@media (max-width: 600px) {
+  .intro-dialog {
+    gap: var(--space-3);
+    max-height: calc(100vh - 24px);
+    padding: var(--space-4);
+  }
+
+  .intro-dialog h2 {
+    font-size: 1.7rem;
+  }
+
+  .intro-dialog__steps {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-2);
+  }
+
+  .intro-dialog__step {
+    grid-template-columns: 34px minmax(0, 1fr);
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .intro-dialog__step::before {
+    grid-column: auto;
+    align-self: center;
+  }
+
+  .intro-dialog__step svg {
+    display: none;
+  }
+}

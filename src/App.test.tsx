@@ -1,4 +1,5 @@
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { vi } from 'vitest';
 import App from './App';
 import { createGame, formatCoord, getShip, shipCells, type Coord } from './engine';
 import { PLACEMENT_ERRORS } from './ui/messages';
@@ -17,7 +18,7 @@ const headline = () => screen.getByTestId('turn-headline').textContent ?? '';
 const startButton = () => screen.getByRole('button', { name: 'Start Battle' });
 
 function renderGame(computerDelayMs = 0) {
-  render(<App seed={SEED} computerDelayMs={computerDelayMs} />);
+  render(<App seed={SEED} computerDelayMs={computerDelayMs} showIntro={false} />);
 }
 
 function autoPlaceAndStart() {
@@ -98,6 +99,25 @@ describe('App: placement', () => {
     expect(screen.getByTestId('ship-greatLongship').style.gridRow).toBe('7 / span 5');
   });
 
+  it('toggles optional sound and persists the preference', () => {
+    localStorage.removeItem('ravenfjord.sound');
+    renderGame();
+    const off = screen.getByRole('button', { name: 'Sound: Off' });
+    expect(off).toHaveAttribute('aria-pressed', 'false');
+
+    fireEvent.click(off);
+    const on = screen.getByRole('button', { name: 'Sound: On' });
+    expect(on).toHaveAttribute('aria-pressed', 'true');
+    expect(localStorage.getItem('ravenfjord.sound')).toBe('1');
+
+    fireEvent.click(on);
+    expect(screen.getByRole('button', { name: 'Sound: Off' })).toHaveAttribute(
+      'aria-pressed',
+      'false',
+    );
+    expect(localStorage.getItem('ravenfjord.sound')).toBe('0');
+  });
+
   it('rejects an overlapping ship but allows touching ships', () => {
     renderGame();
     fireEvent.click(cell('player-board', { row: 0, col: 0 }));
@@ -119,6 +139,68 @@ describe('App: placement', () => {
     renderGame();
     fireEvent.click(cell('player-board', { row: 4, col: 4 }));
     fireEvent.click(cell('player-board', { row: 4, col: 6 }));
+    expect(screen.queryByTestId('ship-greatLongship')).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /Great Longship/, pressed: true }),
+    ).toBeInTheDocument();
+  });
+
+  it('moves a moored ship with a pointer drag and ignores the trailing click', () => {
+    renderGame();
+    fireEvent.click(cell('player-board', { row: 4, col: 4 }));
+    const start = cell('player-board', { row: 4, col: 5 });
+    const target = cell('player-board', { row: 5, col: 5 });
+    Object.defineProperty(document, 'elementFromPoint', {
+      configurable: true,
+      value: vi.fn().mockReturnValue(target),
+    });
+
+    fireEvent.pointerDown(start, {
+      pointerId: 9,
+      button: 0,
+      clientX: 10,
+      clientY: 10,
+    });
+    fireEvent.pointerMove(start, { pointerId: 9, clientX: 20, clientY: 20 });
+    expect(target).toHaveClass('cell--preview-ok');
+    fireEvent.pointerUp(start, { pointerId: 9, clientX: 20, clientY: 20 });
+    fireEvent.click(start);
+
+    const ship = screen.getByTestId('ship-greatLongship');
+    expect(ship.style.gridRow).toBe('7 / span 1');
+    expect(ship.style.gridColumn).toBe('6 / span 5');
+    expect(screen.getByText('The Great Longship is moved to E6.')).toBeInTheDocument();
+  });
+
+  it('rejects an invalid ship drag without moving it and keeps plain clicks as lifts', async () => {
+    renderGame();
+    fireEvent.click(cell('player-board', { row: 4, col: 4 }));
+    const start = cell('player-board', { row: 4, col: 4 });
+    const target = cell('player-board', { row: 9, col: 9 });
+    Object.defineProperty(document, 'elementFromPoint', {
+      configurable: true,
+      value: vi.fn().mockReturnValue(target),
+    });
+
+    fireEvent.pointerDown(start, {
+      pointerId: 10,
+      button: 0,
+      clientX: 10,
+      clientY: 10,
+    });
+    fireEvent.pointerMove(start, { pointerId: 10, clientX: 40, clientY: 40 });
+    expect(target).toHaveClass('cell--preview-bad');
+    fireEvent.pointerUp(start, { pointerId: 10, clientX: 40, clientY: 40 });
+
+    const ship = screen.getByTestId('ship-greatLongship');
+    expect(ship.style.gridRow).toBe('6 / span 1');
+    expect(ship.style.gridColumn).toBe('6 / span 5');
+    expect(screen.getByText(PLACEMENT_ERRORS.outOfBounds('Great Longship'))).toBeInTheDocument();
+
+    await act(async () => {
+      await new Promise((resolve) => window.setTimeout(resolve, 0));
+    });
+    fireEvent.click(start);
     expect(screen.queryByTestId('ship-greatLongship')).not.toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: /Great Longship/, pressed: true }),
@@ -193,7 +275,9 @@ describe('App: battle', () => {
       .getAllByRole('listitem')
       .map((li) => li.textContent);
     expect(entries).toHaveLength(3);
-    expect(entries[0]).toMatch(/^The enemy's (?:volley|spear)|^Your .* sinks to Rán's halls/);
+    expect(entries[0]).toMatch(
+      /^The enemy's (?:volley missed|spears struck)|^Your .* sinks to Rán's halls/,
+    );
     expect(entries[1]).toMatch(/A1/);
     expect(cell('enemy-board', { row: 0, col: 0 }).dataset.state).not.toBe('open');
     expect(

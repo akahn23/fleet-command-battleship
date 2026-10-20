@@ -61,6 +61,10 @@
   filter: grayscale(0.4);
 }
 
+.ship--dragging {
+  opacity: 0.3;
+}
+
 @keyframes sink-settle {
   from {
     transform: translateY(-2px) rotate(-1deg);

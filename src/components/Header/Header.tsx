@@ -4,14 +4,26 @@ import './Header.css';
 interface HeaderProps {
   /** True while asking whether to abandon an unfinished battle. */
   confirming: boolean;
+  soundEnabled: boolean;
+  onHowToPlay: () => void;
+  onToggleSound: () => void;
   onNewGame: () => void;
   onConfirm: () => void;
   onCancel: () => void;
 }
 
 export const NEW_BATTLE_BUTTON_ID = 'new-battle-button';
+export const HOW_TO_PLAY_BUTTON_ID = 'how-to-play-button';
 
-export function Header({ confirming, onNewGame, onConfirm, onCancel }: HeaderProps) {
+export function Header({
+  confirming,
+  soundEnabled,
+  onHowToPlay,
+  onToggleSound,
+  onNewGame,
+  onConfirm,
+  onCancel,
+}: HeaderProps) {
   const newBattleRef = useRef<HTMLButtonElement>(null);
   // Set only when the player answers the prompt, so a game ending mid-prompt
   // leaves focus with the result dialog.
@@ -83,30 +95,38 @@ export function Header({ confirming, onNewGame, onConfirm, onCancel }: HeaderPro
         </svg>
         <div>
           <h1>Ravenfjord</h1>
-          <p className="site-header__tagline">A Viking war of wits upon the northern sea</p>
+          <p className="site-header__tagline">A Viking war of Battleship upon the northern sea</p>
         </div>
       </div>
-      {confirming ? (
-        <div className="site-header__confirm" role="group" aria-labelledby="abandon-prompt">
-          <span id="abandon-prompt">Abandon this battle?</span>
-          <button type="button" className="btn" onClick={answer(onCancel)} autoFocus>
-            Keep Fighting
-          </button>
-          <button type="button" className="btn btn--danger" onClick={answer(onConfirm)}>
-            Abandon Battle
-          </button>
-        </div>
-      ) : (
-        <button
-          ref={newBattleRef}
-          id={NEW_BATTLE_BUTTON_ID}
-          type="button"
-          className="btn"
-          onClick={onNewGame}
-        >
-          New Battle
+      <div className="site-header__actions">
+        <button id={HOW_TO_PLAY_BUTTON_ID} type="button" className="btn" onClick={onHowToPlay}>
+          How to Play
         </button>
-      )}
+        <button type="button" className="btn" aria-pressed={soundEnabled} onClick={onToggleSound}>
+          Sound: {soundEnabled ? 'On' : 'Off'}
+        </button>
+        {confirming ? (
+          <div className="site-header__confirm" role="group" aria-labelledby="abandon-prompt">
+            <span id="abandon-prompt">Abandon this battle?</span>
+            <button type="button" className="btn" onClick={answer(onCancel)} autoFocus>
+              Keep Fighting
+            </button>
+            <button type="button" className="btn btn--danger" onClick={answer(onConfirm)}>
+              Abandon Battle
+            </button>
+          </div>
+        ) : (
+          <button
+            ref={newBattleRef}
+            id={NEW_BATTLE_BUTTON_ID}
+            type="button"
+            className="btn"
+            onClick={onNewGame}
+          >
+            New Battle
+          </button>
+        )}
+      </div>
     </header>
   );
 }
