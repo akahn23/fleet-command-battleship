@@ -44,6 +44,7 @@ Severity: **P0** game-breaking or wrong outcome · **P1** gameplay, AI, turn or 
 | BUG-012 | P2   | Sunk-ship rows in the fleet panels failed contrast           | M3 measured contrast check | `3bfc345`, M3 PR                                                                |
 | BUG-013 | P2   | R rotated a ship behind the How to Play dialog               | M5 browser QA, PR #11      | M5 regression test                                                              |
 | BUG-014 | P2   | Sound silent on iPhone                                       | User on physical iPhone    | Computer-only sound by user decision                                            |
+| BUG-015 | P3   | Sound availability ignored pointer changes after load        | Devin Review, PR #14       | Live media-query subscription                                                   |
 
 ---
 
@@ -257,6 +258,24 @@ Severity: **P0** game-breaking or wrong outcome · **P1** gameplay, AI, turn or 
   `matchMedia`, and verify no soundscape is created on a coarse-pointer device through a shot. E2E
   tests verify the desktop button and its absence on Pixel 7 after confirming `(pointer: coarse)`.
 - **Found by:** the user on a physical iPhone after PR #11.
+
+## BUG-015 — Sound availability ignored pointer changes after load (P3)
+
+- **Problem:** changing the primary pointer while the game stayed open did not update sound
+  availability. A fine-to-coarse change left the Sound button visible and active audio playing;
+  changing back to fine left the button absent until reload.
+- **Reproduce:** enable sound on a fine-pointer computer, then change its primary pointer to coarse
+  without reloading.
+- **Expected vs actual:** the Sound button and playback should follow the current primary pointer;
+  the app kept the initial availability state.
+- **Root cause:** `soundAvailable` was read once when `App` mounted, with no listener for changes to
+  `(pointer: coarse)`.
+- **Fix and verification:** `App` now subscribes to the media query. A coarse-pointer change hides
+  the button, disables playback, and turns off sound state without changing the stored computer
+  preference. A return to fine pointer restores that preference and re-enables an existing
+  soundscape. The new regression test failed before the fix because the Sound button remained
+  visible after the change event, and passes with the subscription in place.
+- **Found by:** Devin Review on PR #14.
 
 ---
 

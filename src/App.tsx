@@ -108,15 +108,37 @@ export default function App({
   const [dismissedGameId, setDismissedGameId] = useState<number | null>(null);
   const [confirmingRestart, setConfirmingRestart] = useState(false);
   const [introOpen, setIntroOpen] = useState(() => showIntro ?? !introSeen());
-  const [soundAvailable] = useState(isSoundAvailable);
+  const [soundAvailable, setSoundAvailable] = useState(isSoundAvailable);
   const [soundEnabled, setSoundEnabled] = useState(() => soundAvailable && soundPreference());
   const mainRef = useRef<HTMLElement>(null);
   const soundscapeRef = useRef<Soundscape | null>(null);
+  const previousSoundAvailable = useRef(soundAvailable);
 
   useComputerTurn(state, dispatch, computerDelayMs);
   useBattleSounds(state, soundAvailable && soundEnabled ? soundscapeRef.current : null);
 
   useEffect(() => () => soundscapeRef.current?.dispose(), []);
+
+  useEffect(() => {
+    if (typeof window.matchMedia !== 'function') return;
+    const mql = window.matchMedia('(pointer: coarse)');
+    const onChange = () => setSoundAvailable(!mql.matches);
+    mql.addEventListener('change', onChange);
+    return () => mql.removeEventListener('change', onChange);
+  }, []);
+
+  useEffect(() => {
+    if (previousSoundAvailable.current === soundAvailable) return;
+    previousSoundAvailable.current = soundAvailable;
+    if (!soundAvailable) {
+      soundscapeRef.current?.setEnabled(false);
+      setSoundEnabled(false);
+      return;
+    }
+    const pref = soundPreference();
+    setSoundEnabled(pref);
+    if (pref && soundscapeRef.current) soundscapeRef.current.setEnabled(true);
+  }, [soundAvailable]);
 
   const ensureSoundscape = () => {
     if (!soundAvailable || !soundEnabled || soundscapeRef.current) return;
