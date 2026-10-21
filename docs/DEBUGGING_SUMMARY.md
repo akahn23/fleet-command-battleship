@@ -1,7 +1,7 @@
 # Ravenfjord — Debugging Summary
 
 A short, shareable summary of the most instructive real bugs found while building Ravenfjord. The
-[full debugging report](DEBUGGING_REPORT.md) lists all 12 confirmed defects with reproduction steps,
+[full debugging report](DEBUGGING_REPORT.md) lists all 13 confirmed defects with reproduction steps,
 evidence and commit references. No bug here is hypothetical, and none was game-breaking.
 
 ## How bugs were found
