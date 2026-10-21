@@ -1,8 +1,46 @@
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import { vi } from 'vitest';
+import { afterEach, vi } from 'vitest';
 import App from './App';
+import { createSoundscape } from './audio/soundscape';
 import { createGame, formatCoord, getShip, shipCells, type Coord } from './engine';
 import { PLACEMENT_ERRORS } from './ui/messages';
+
+const soundscapeStub = vi.hoisted(() => ({
+  setEnabled: vi.fn(),
+  playHit: vi.fn(),
+  playSink: vi.fn(),
+  dispose: vi.fn(),
+}));
+
+vi.mock('./audio/soundscape', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('./audio/soundscape')>();
+  return { ...actual, createSoundscape: vi.fn(() => soundscapeStub) };
+});
+
+const matchMediaDescriptor = Object.getOwnPropertyDescriptor(window, 'matchMedia');
+
+afterEach(() => {
+  if (matchMediaDescriptor) Object.defineProperty(window, 'matchMedia', matchMediaDescriptor);
+  else Reflect.deleteProperty(window, 'matchMedia');
+  localStorage.removeItem('ravenfjord.sound');
+  vi.clearAllMocks();
+});
+
+function mockPointer(coarse: boolean) {
+  Object.defineProperty(window, 'matchMedia', {
+    configurable: true,
+    value: vi.fn((query: string) => ({
+      matches: query === '(pointer: coarse)' && coarse,
+      media: query,
+      onchange: null,
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    })),
+  });
+}
 
 const SEED = 7;
 
@@ -116,6 +154,41 @@ describe('App: placement', () => {
       'false',
     );
     expect(localStorage.getItem('ravenfjord.sound')).toBe('0');
+  });
+
+  it('hides sound and never creates a soundscape on coarse-pointer devices', async () => {
+    mockPointer(true);
+    localStorage.setItem('ravenfjord.sound', '1');
+    vi.mocked(createSoundscape).mockClear();
+    renderGame();
+
+    expect(screen.queryByRole('button', { name: /^Sound:/ })).not.toBeInTheDocument();
+    autoPlaceAndStart();
+    await fireAt({ row: 0, col: 0 });
+    await waitFor(() =>
+      expect(
+        within(screen.getByRole('list', { name: 'Battle log' })).getAllByRole('listitem'),
+      ).toHaveLength(3),
+    );
+
+    expect(createSoundscape).not.toHaveBeenCalled();
+    expect(localStorage.getItem('ravenfjord.sound')).toBe('1');
+  });
+
+  it('keeps the sound toggle on a fine-pointer computer', () => {
+    mockPointer(false);
+    vi.mocked(createSoundscape).mockClear();
+    renderGame();
+
+    const soundOff = screen.getByRole('button', { name: 'Sound: Off' });
+    expect(soundOff).toHaveAttribute('aria-pressed', 'false');
+    fireEvent.click(soundOff);
+
+    expect(screen.getByRole('button', { name: 'Sound: On' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    expect(createSoundscape).toHaveBeenCalledTimes(1);
   });
 
   it('rejects an overlapping ship but allows touching ships', () => {

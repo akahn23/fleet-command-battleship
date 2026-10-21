@@ -4,6 +4,7 @@ import './Header.css';
 interface HeaderProps {
   /** True while asking whether to abandon an unfinished battle. */
   confirming: boolean;
+  soundAvailable: boolean;
   soundEnabled: boolean;
   onHowToPlay: () => void;
   onToggleSound: () => void;
@@ -17,6 +18,7 @@ export const HOW_TO_PLAY_BUTTON_ID = 'how-to-play-button';
 
 export function Header({
   confirming,
+  soundAvailable,
   soundEnabled,
   onHowToPlay,
   onToggleSound,
@@ -102,9 +104,11 @@ export function Header({
         <button id={HOW_TO_PLAY_BUTTON_ID} type="button" className="btn" onClick={onHowToPlay}>
           How to Play
         </button>
-        <button type="button" className="btn" aria-pressed={soundEnabled} onClick={onToggleSound}>
-          Sound: {soundEnabled ? 'On' : 'Off'}
-        </button>
+        {soundAvailable && (
+          <button type="button" className="btn" aria-pressed={soundEnabled} onClick={onToggleSound}>
+            Sound: {soundEnabled ? 'On' : 'Off'}
+          </button>
+        )}
         {confirming ? (
           <div className="site-header__confirm" role="group" aria-labelledby="abandon-prompt">
             <span id="abandon-prompt">Abandon this battle?</span>

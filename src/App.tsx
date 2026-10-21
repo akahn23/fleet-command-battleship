@@ -8,7 +8,7 @@ import { FleetStatus } from './components/FleetStatus/FleetStatus';
 import { Header, HOW_TO_PLAY_BUTTON_ID, NEW_BATTLE_BUTTON_ID } from './components/Header/Header';
 import { PlacementDock } from './components/PlacementDock/PlacementDock';
 import { TurnBanner } from './components/TurnBanner/TurnBanner';
-import { createSoundscape, type Soundscape } from './audio/soundscape';
+import { createSoundscape, isSoundAvailable, type Soundscape } from './audio/soundscape';
 import {
   FLEET,
   canPlaceShip,
@@ -108,22 +108,24 @@ export default function App({
   const [dismissedGameId, setDismissedGameId] = useState<number | null>(null);
   const [confirmingRestart, setConfirmingRestart] = useState(false);
   const [introOpen, setIntroOpen] = useState(() => showIntro ?? !introSeen());
-  const [soundEnabled, setSoundEnabled] = useState(soundPreference);
+  const [soundAvailable] = useState(isSoundAvailable);
+  const [soundEnabled, setSoundEnabled] = useState(() => soundAvailable && soundPreference());
   const mainRef = useRef<HTMLElement>(null);
   const soundscapeRef = useRef<Soundscape | null>(null);
 
   useComputerTurn(state, dispatch, computerDelayMs);
-  useBattleSounds(state, soundEnabled ? soundscapeRef.current : null);
+  useBattleSounds(state, soundAvailable && soundEnabled ? soundscapeRef.current : null);
 
   useEffect(() => () => soundscapeRef.current?.dispose(), []);
 
   const ensureSoundscape = () => {
-    if (!soundEnabled || soundscapeRef.current) return;
+    if (!soundAvailable || !soundEnabled || soundscapeRef.current) return;
     soundscapeRef.current = createSoundscape();
     soundscapeRef.current.setEnabled(true);
   };
 
   const toggleSound = () => {
+    if (!soundAvailable) return;
     const next = !soundEnabled;
     storeSoundPreference(next);
     setSoundEnabled(next);
@@ -360,6 +362,7 @@ export default function App({
       <main className={`app${phase !== 'placement' ? ' app--battle' : ''}`} ref={mainRef}>
         <Header
           confirming={confirmingRestart && phase === 'battle'}
+          soundAvailable={soundAvailable}
           soundEnabled={soundEnabled}
           onHowToPlay={openIntro}
           onToggleSound={toggleSound}

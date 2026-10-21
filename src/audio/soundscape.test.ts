@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { createSoundscape } from './soundscape';
+import { createSoundscape, isSoundAvailable } from './soundscape';
 
 class FakeParam {
   value = 0;
@@ -107,9 +107,38 @@ class FakeAudioContext {
   }
 }
 
+const matchMediaDescriptor = Object.getOwnPropertyDescriptor(window, 'matchMedia');
+
 afterEach(() => {
+  if (matchMediaDescriptor) Object.defineProperty(window, 'matchMedia', matchMediaDescriptor);
+  else Reflect.deleteProperty(window, 'matchMedia');
   vi.useRealTimers();
   vi.restoreAllMocks();
+});
+
+describe('isSoundAvailable', () => {
+  it('returns false for a coarse primary pointer', () => {
+    Object.defineProperty(window, 'matchMedia', {
+      configurable: true,
+      value: vi.fn().mockReturnValue({ matches: true }),
+    });
+
+    expect(isSoundAvailable()).toBe(false);
+  });
+
+  it('returns true for a fine primary pointer', () => {
+    const matchMedia = vi.fn().mockReturnValue({ matches: false });
+    Object.defineProperty(window, 'matchMedia', { configurable: true, value: matchMedia });
+
+    expect(isSoundAvailable()).toBe(true);
+    expect(matchMedia).toHaveBeenCalledWith('(pointer: coarse)');
+  });
+
+  it('defaults to available when matchMedia is missing', () => {
+    Object.defineProperty(window, 'matchMedia', { configurable: true, value: undefined });
+
+    expect(isSoundAvailable()).toBe(true);
+  });
 });
 
 describe('createSoundscape', () => {

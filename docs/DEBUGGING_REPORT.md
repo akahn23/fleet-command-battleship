@@ -1,6 +1,6 @@
 # Ravenfjord — Bugs Found and Fixed
 
-Every real defect found while building Ravenfjord across Milestones 1–5 is listed here: what went
+Every real defect found while building Ravenfjord across Milestones 1–6 is listed here: what went
 wrong, how to reproduce it, why it happened, how it was fixed, and how the fix was proven. Nothing
 here is hypothetical. Risks that were designed out in advance, and areas that were tested without
 finding a defect, are listed separately at the end.
@@ -43,6 +43,7 @@ Severity: **P0** game-breaking or wrong outcome · **P1** gameplay, AI, turn or 
 | BUG-011 | P2   | Battle log could not be scrolled by keyboard                 | M3 axe-core scan           | `3bfc345`, M3 PR                                                                |
 | BUG-012 | P2   | Sunk-ship rows in the fleet panels failed contrast           | M3 measured contrast check | `3bfc345`, M3 PR                                                                |
 | BUG-013 | P2   | R rotated a ship behind the How to Play dialog               | M5 browser QA, PR #11      | M5 regression test                                                              |
+| BUG-014 | P2   | Sound silent on iPhone                                       | User on physical iPhone    | Computer-only sound by user decision                                            |
 
 ---
 
@@ -235,6 +236,27 @@ Severity: **P0** game-breaking or wrong outcome · **P1** gameplay, AI, turn or 
   confirms `R` leaves the orientation unchanged with the dialog open and rotates after Begin closes
   it.
 - **Found by:** M5 browser QA on PR #11.
+
+## BUG-014 — Sound silent on iPhone (P2)
+
+- **Problem:** sound was on and the volume was at maximum, but no audio was audible on a physical
+  iPhone.
+- **Reproduce:** enable sound and play the game on an iPhone.
+- **Expected vs actual:** music and hit/sink effects should be audible; the user heard nothing.
+- **Root cause:**
+  - **Measured:** offline rendering showed the drone at -63.1 dBFS RMS above 300 Hz against
+    -47.1 dBFS full-band RMS. Hit and sink peaks above 300 Hz were -18.9 dBFS and -14.7 dBFS.
+    This put most sound energy below what phone speakers reproduce well.
+  - **Documented iOS behaviour, not reproduced here:** iOS can mute Web Audio while the
+    ring/silent switch is on.
+  - **Code gap:** a context interrupted by iOS was only resumed from `visibilitychange`, without a
+    user gesture.
+- **Fix and verification:** by the user's decision, sound is now computer-only. On coarse-pointer
+  devices, the Sound button is not rendered and no AudioContext is created. The attempted iOS fix
+  in PR #13 was dropped in favour of this decision. Unit tests cover coarse, fine, and missing
+  `matchMedia`, and verify no soundscape is created on a coarse-pointer device through a shot. E2E
+  tests verify the desktop button and its absence on Pixel 7 after confirming `(pointer: coarse)`.
+- **Found by:** the user on a physical iPhone after PR #11.
 
 ---
 
