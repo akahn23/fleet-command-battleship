@@ -1,6 +1,6 @@
 # Ravenfjord — Bugs Found and Fixed
 
-Every real defect found while building Ravenfjord across Milestones 1–5 is listed here: what went
+Every real defect found while building Ravenfjord across Milestones 1–6 is listed here: what went
 wrong, how to reproduce it, why it happened, how it was fixed, and how the fix was proven. Nothing
 here is hypothetical. Risks that were designed out in advance, and areas that were tested without
 finding a defect, are listed separately at the end.
@@ -43,6 +43,7 @@ Severity: **P0** game-breaking or wrong outcome · **P1** gameplay, AI, turn or 
 | BUG-011 | P2   | Battle log could not be scrolled by keyboard                 | M3 axe-core scan           | `3bfc345`, M3 PR                                                                |
 | BUG-012 | P2   | Sunk-ship rows in the fleet panels failed contrast           | M3 measured contrast check | `3bfc345`, M3 PR                                                                |
 | BUG-013 | P2   | R rotated a ship behind the How to Play dialog               | M5 browser QA, PR #11      | M5 regression test                                                              |
+| BUG-014 | P2   | Sound silent on iPhone                                       | User on physical iPhone    | M6 audio tests and spectrum measurements                                        |
 
 ---
 
@@ -235,6 +236,61 @@ Severity: **P0** game-breaking or wrong outcome · **P1** gameplay, AI, turn or 
   confirms `R` leaves the orientation unchanged with the dialog open and rotates after Begin closes
   it.
 - **Found by:** M5 browser QA on PR #11.
+
+## BUG-014 — Sound silent on iPhone (P2)
+
+- **Problem:** sound was enabled and the volume was up, but no game audio played on a physical
+  iPhone after PR #11.
+- **Reproduce:** enable sound, then play on an iPhone speaker.
+- **Expected vs actual:** music and battle effects should be audible; the user heard nothing.
+- **Root cause:**
+  - The measured baseline put most sound energy below the range a phone speaker reproduces well.
+    The drone measured -47.1 dBFS full-band RMS and -63.1 dBFS above 300 Hz RMS. Hit peaks measured
+    -12.5 dBFS full-band and -18.9 dBFS above 300 Hz; sink peaks measured -11.9 dBFS full-band and
+    -14.7 dBFS above 300 Hz.
+  - Documented WebKit behavior is that iOS Safari can mute Web Audio with the ring/silent switch
+    on when the audio session is `ambient`. This was not reproducible in this environment, which
+    had no physical iPhone available.
+  - The visibility-change handler attempted to resume a suspended context without a user gesture.
+    If iOS interrupts the context, that resume can be rejected, after which `playEffect` returns
+    silently while the context is not running.
+- **Fix and verification:** enabling sound now selects the `playback` audio session where
+  `navigator.audioSession` is available; disabling or disposing restores `auto`. A gesture unlock
+  starts a one-sample silent buffer and retries resuming suspended or interrupted contexts.
+  Subsequent app clicks invoke the unlock path. The drone and pluck frequencies were raised, the
+  noise sweep and thumps were moved into a more audible range, and the mix was tuned against the
+  supplied spectrum targets. Audio-session, unlock, and app-click unit tests pass. The exact
+  before/after spectrum output is:
+
+  Before (baseline):
+
+  ```json
+  {
+    "droneFull": "rms -47.1 dBFS, peak -38.6 dBFS",
+    "droneAbove300": "rms -63.1 dBFS, peak -53.6 dBFS",
+    "playHitFull": "rms -35.0 dBFS, peak -12.5 dBFS",
+    "playHitAbove300": "rms -43.5 dBFS, peak -18.9 dBFS",
+    "playSinkFull": "rms -33.5 dBFS, peak -11.9 dBFS",
+    "playSinkAbove300": "rms -41.4 dBFS, peak -14.7 dBFS"
+  }
+  ```
+
+  After (M6):
+
+  ```json
+  {
+    "droneFull": "rms -38.5 dBFS, peak -30.3 dBFS",
+    "droneAbove300": "rms -43.4 dBFS, peak -34.6 dBFS",
+    "playHitFull": "rms -33.0 dBFS, peak -10.2 dBFS",
+    "playHitAbove300": "rms -39.4 dBFS, peak -14.6 dBFS",
+    "playSinkFull": "rms -31.5 dBFS, peak -8.9 dBFS",
+    "playSinkAbove300": "rms -38.2 dBFS, peak -13.5 dBFS"
+  }
+  ```
+
+  The spectrum targets pass. This fix has **not** been re-verified on a physical iPhone yet.
+
+- **Found by:** the user on a physical iPhone after PR #11.
 
 ---
 
