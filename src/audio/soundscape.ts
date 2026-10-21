@@ -5,6 +5,11 @@ export interface Soundscape {
   dispose(): void;
 }
 
+export function isSoundAvailable(): boolean {
+  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return true;
+  return !window.matchMedia('(pointer: coarse)').matches;
+}
+
 type AudioContextFactory = () => AudioContext;
 
 const SILENCE_LEVEL = 0.0001;
