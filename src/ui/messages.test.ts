@@ -34,10 +34,10 @@ describe('battle log messages', () => {
   it('describes computer shots without revealing anything new', () => {
     expect(
       describeEvent({ id: 1, kind: 'shot', attacker: 'computer', coord: at, result: 'miss' }),
-    ).toBe("The enemy's volley broke upon the sea at D7.");
+    ).toBe("The enemy's volley missed your ships at D7.");
     expect(
       describeEvent({ id: 1, kind: 'shot', attacker: 'computer', coord: at, result: 'hit' }),
-    ).toBe("The enemy's spear found purchase at D7!");
+    ).toBe("The enemy's spears struck your ship at D7!");
     expect(
       describeEvent({
         id: 1,

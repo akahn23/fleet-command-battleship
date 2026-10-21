@@ -1,6 +1,6 @@
 # Ravenfjord
 
-**Battleship reimagined as a Viking naval strategy game.**
+**A Viking Battleship war upon the northern sea.**
 
 ### [▶ Play Ravenfjord](https://ravenfjord.vercel.app)
 
@@ -16,18 +16,23 @@ See [docs/PROJECT_PLAN.md](docs/PROJECT_PLAN.md) for the requirements and rules 
 
 ## How to play
 
-1. **Muster your fleet.** Choose a vessel, then click your waters to moor it. Press <kbd>R</kbd>
-   or **Rotate Ship** to turn it, click a moored ship to lift it back, or use **Auto-Place Fleet**.
-   Ships must stay on the board and may not overlap. They may touch.
+The dismissible **How to Play** guide opens on your first visit. Choose **How to Play** in the
+header to open it again.
+
+1. **Muster your fleet.** Choose a vessel, then click or tap your waters to moor it. Press
+   <kbd>R</kbd> or **Rotate Ship** to turn it, drag a moored ship to reposition it, or click a
+   moored ship to lift it back. **Auto-Place Fleet** arranges all five for you. Ships must stay on
+   the board and may not overlap; they may touch.
 2. **Start Battle** once all five are placed: Great Longship (5), Dragonship (4), War Longship (3),
    Raider (3), Scout Ship (2).
-3. **Strike.** Click a square in enemy waters. You fire first, and turns alternate one shot each.
-   A hit does not earn another shot. Squares already fired on can't be chosen again.
+3. **Strike.** Click or tap a square in enemy waters. You fire first, and turns alternate one shot
+   each. A hit does not earn another shot. Squares already fired on can't be chosen again.
 4. A sunk enemy ship is revealed. The first side to sink the whole enemy fleet wins.
    **New Battle** starts over at any time.
 
-The game is fully keyboard playable: Tab to a board, use the arrow keys to move, and press Enter
-to place or fire.
+Use **Sound: On/Off** in the header for optional ambient music and hit/sink effects. Sound is off by
+default. The game is fully keyboard playable: Tab to a board, use the arrow keys to move, and press
+Enter to place or fire.
 
 ## Computer opponent and battle feedback
 
@@ -51,8 +56,6 @@ The raven emblem is a hand-authored inline SVG inspired by the historical Viking
 
 ## Known limitations
 
-- There are no sound effects; optional sound has not been implemented.
-- Ship placement has click controls but no drag-and-drop.
 - Refreshing starts a new game; progress is not saved.
 - The game runs entirely in the browser, so a player using developer tools could inspect the enemy
   fleet in memory; preventing that would need a server.

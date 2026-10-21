@@ -19,8 +19,8 @@ export function describeEvent(entry: LogEntry): string {
         return `Your volley splashed into open waters at ${at}.`;
       }
       if (entry.sunk) return `Your ${name(entry.sunk)} sinks to Rán's halls at ${at}!`;
-      if (entry.result === 'hit') return `The enemy's spear found purchase at ${at}!`;
-      return `The enemy's volley broke upon the sea at ${at}.`;
+      if (entry.result === 'hit') return `The enemy's spears struck your ship at ${at}!`;
+      return `The enemy's volley missed your ships at ${at}.`;
     }
   }
 }

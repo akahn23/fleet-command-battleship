@@ -1,5 +1,6 @@
-import { expect, test, type Locator, type Page } from '@playwright/test';
+import { expect, test, type Locator, type Page } from './fixtures';
 import { createGame, gameReducer, shipCells, type Coord, type ShipPlacement } from '../src/engine';
+import { expectShipCoversCells } from './helpers';
 
 const SEED = 7;
 const enemyFleet = createGame({ seed: SEED }).boards.computer.ships;
@@ -27,19 +28,6 @@ async function startWithAutoPlacement(page: Page) {
 async function fireAt(page: Page, coord: Coord) {
   await cell(page, 'enemy', coord).click();
   await expect(headline(page)).toHaveText(/your turn|victory|defeat/i);
-}
-
-async function expectShipCoversCells(page: Page, side: 'player' | 'enemy', ship: ShipPlacement) {
-  const shipBox = await box(board(page, side).getByTestId(`ship-${ship.shipId}`));
-  const boxes = await Promise.all(shipCells(ship).map((c) => box(cell(page, side, c))));
-  const left = Math.min(...boxes.map((b) => b.x));
-  const top = Math.min(...boxes.map((b) => b.y));
-  const right = Math.max(...boxes.map((b) => b.x + b.width));
-  const bottom = Math.max(...boxes.map((b) => b.y + b.height));
-  expect(Math.abs(shipBox.x - left)).toBeLessThanOrEqual(1);
-  expect(Math.abs(shipBox.y - top)).toBeLessThanOrEqual(1);
-  expect(Math.abs(shipBox.x + shipBox.width - right)).toBeLessThanOrEqual(1);
-  expect(Math.abs(shipBox.y + shipBox.height - bottom)).toBeLessThanOrEqual(1);
 }
 
 async function expectShipArtworkFillsCell(page: Page, ship: ShipPlacement) {

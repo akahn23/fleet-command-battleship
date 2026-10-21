@@ -254,6 +254,104 @@ describe('NEW_GAME', () => {
   });
 });
 
+describe('MOVE_SHIP', () => {
+  const longship = {
+    shipId: 'greatLongship' as const,
+    origin: { row: 2, col: 2 },
+    orientation: 'horizontal' as const,
+  };
+  const dragon = {
+    shipId: 'dragonship' as const,
+    origin: { row: 4, col: 2 },
+    orientation: 'horizontal' as const,
+  };
+
+  it('moves a placed ship and stores a copy of its placement', () => {
+    const placed = gameReducer(createGame({ seed: 1 }), {
+      type: 'PLACE_SHIP',
+      placement: longship,
+    });
+    const movedPlacement = {
+      shipId: 'greatLongship' as const,
+      origin: { row: 5, col: 1 },
+      orientation: 'vertical' as const,
+    };
+    const moved = gameReducer(placed, {
+      type: 'MOVE_SHIP',
+      shipId: 'greatLongship',
+      placement: movedPlacement,
+    });
+
+    expect(moved).not.toBe(placed);
+    expect(moved.boards.player.ships[0]).toEqual(movedPlacement);
+    expect(moved.boards.player.ships[0]).not.toBe(movedPlacement);
+    expect(moved.boards.player.ships[0]?.origin).not.toBe(movedPlacement.origin);
+  });
+
+  it('rejects overlap and off-board moves without changing the state', () => {
+    let state = gameReducer(createGame({ seed: 1 }), { type: 'PLACE_SHIP', placement: longship });
+    state = gameReducer(state, { type: 'PLACE_SHIP', placement: dragon });
+
+    expect(
+      gameReducer(state, {
+        type: 'MOVE_SHIP',
+        shipId: 'greatLongship',
+        placement: { ...longship, origin: { row: 4, col: 0 } },
+      }),
+    ).toBe(state);
+    expect(
+      gameReducer(state, {
+        type: 'MOVE_SHIP',
+        shipId: 'greatLongship',
+        placement: { ...longship, origin: { row: 8, col: 6 } },
+      }),
+    ).toBe(state);
+  });
+
+  it('rejects moves outside placement and mismatched or absent ships', () => {
+    let battle = gameReducer(createGame({ seed: 1 }), { type: 'AUTO_PLACE' });
+    battle = gameReducer(battle, { type: 'START_BATTLE' });
+    expect(
+      gameReducer(battle, {
+        type: 'MOVE_SHIP',
+        shipId: 'greatLongship',
+        placement: longship,
+      }),
+    ).toBe(battle);
+
+    const empty = createGame({ seed: 1 });
+    expect(
+      gameReducer(empty, {
+        type: 'MOVE_SHIP',
+        shipId: 'greatLongship',
+        placement: longship,
+      }),
+    ).toBe(empty);
+    const placed = gameReducer(empty, { type: 'PLACE_SHIP', placement: longship });
+    expect(
+      gameReducer(placed, {
+        type: 'MOVE_SHIP',
+        shipId: 'greatLongship',
+        placement: { ...longship, shipId: 'dragonship' },
+      }),
+    ).toBe(placed);
+  });
+
+  it('allows moving one cell across the ship’s former cells', () => {
+    const placed = gameReducer(createGame({ seed: 1 }), {
+      type: 'PLACE_SHIP',
+      placement: longship,
+    });
+    const moved = gameReducer(placed, {
+      type: 'MOVE_SHIP',
+      shipId: 'greatLongship',
+      placement: { ...longship, origin: { row: 2, col: 3 } },
+    });
+
+    expect(moved.boards.player.ships[0]?.origin).toEqual({ row: 2, col: 3 });
+  });
+});
+
 describe('full simulated games (random player vs random AI)', () => {
   it('always ends with a legal winner and strictly alternating turns (300 seeds)', () => {
     for (let seed = 1; seed <= 300; seed++) {

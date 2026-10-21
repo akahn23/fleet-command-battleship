@@ -82,6 +82,10 @@
   cursor: default;
 }
 
+.board-frame--active .cell--moored {
+  touch-action: none;
+}
+
 .board-frame--active .cell:not([aria-disabled='true']):hover {
   background: rgba(223, 185, 109, 0.2);
   box-shadow: inset 0 0 0 2px rgba(255, 227, 160, 0.85);

@@ -1,10 +1,14 @@
-import { useRef, useState, type KeyboardEvent } from 'react';
+import { useRef, useState, type KeyboardEvent, type PointerEvent } from 'react';
 import {
   BOARD_SIZE,
   COLUMN_LABELS,
   isShipSunk,
+  sameCoord,
+  shipAt,
+  shipCells,
   type Board as BoardModel,
   type Coord,
+  type ShipId,
   type ShipPlacement,
   type Shot,
 } from '../../engine';
@@ -17,6 +21,12 @@ export type CellState = 'open' | 'miss' | 'hit' | 'sunk';
 export interface BoardPreview {
   cells: Coord[];
   valid: boolean;
+}
+
+export interface ShipDrag {
+  shipId: ShipId;
+  offset: number;
+  hovered: Coord | null;
 }
 
 interface BoardProps {
@@ -34,6 +44,9 @@ interface BoardProps {
   isCellUnavailable?: (state: CellState) => boolean;
   onCellActivate?: (coord: Coord) => void;
   onCellHover?: (coord: Coord | null) => void;
+  draggingShipId?: ShipId | null;
+  onShipDrag?: (drag: ShipDrag | null) => void;
+  onShipDrop?: (drag: ShipDrag) => void;
 }
 
 const key = ({ row, col }: Coord) => row * BOARD_SIZE + col;
@@ -63,11 +76,105 @@ export function Board({
   isCellUnavailable = () => false,
   onCellActivate,
   onCellHover,
+  draggingShipId = null,
+  onShipDrag,
+  onShipDrop,
 }: BoardProps) {
   const [focusKey, setFocusKey] = useState(0);
   const cellRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const boardRef = useRef<HTMLDivElement>(null);
+  const dragRef = useRef<{
+    pointerId: number;
+    shipId: ShipId;
+    offset: number;
+    startCoord: Coord;
+    startX: number;
+    startY: number;
+    dragging: boolean;
+  } | null>(null);
+  const suppressClick = useRef(false);
+  const suppressClickTimer = useRef<number | undefined>(undefined);
   const shots = new Map(board.shots.map((shot) => [key(shot.coord), shot]));
   const previewKeys = new Set(preview?.cells.map(key));
+
+  const coordAtPoint = (x: number, y: number): Coord | null => {
+    const target = document.elementFromPoint?.(x, y);
+    const cell = target?.closest<HTMLElement>('[data-row][data-col]');
+    if (!cell || !boardRef.current?.contains(cell)) return null;
+    const row = Number(cell.dataset.row);
+    const col = Number(cell.dataset.col);
+    return Number.isInteger(row) && Number.isInteger(col) ? { row, col } : null;
+  };
+
+  const suppressFollowingClick = () => {
+    suppressClick.current = true;
+    window.clearTimeout(suppressClickTimer.current);
+    suppressClickTimer.current = window.setTimeout(() => {
+      suppressClick.current = false;
+      suppressClickTimer.current = undefined;
+    }, 0);
+  };
+
+  const onPointerDown = (event: PointerEvent<HTMLButtonElement>, coord: Coord) => {
+    if (!active || event.button !== 0) return;
+    const ship = shipAt(board, coord);
+    if (!ship) return;
+    const offset = shipCells(ship).findIndex((cell) => sameCoord(cell, coord));
+    if (offset < 0) return;
+    const pointerId = event.pointerId ?? 1;
+    dragRef.current = {
+      pointerId,
+      shipId: ship.shipId,
+      offset,
+      startCoord: coord,
+      startX: event.clientX,
+      startY: event.clientY,
+      dragging: false,
+    };
+    if (typeof event.currentTarget.setPointerCapture === 'function') {
+      try {
+        event.currentTarget.setPointerCapture(pointerId);
+      } catch {
+        dragRef.current.dragging = false;
+      }
+    }
+  };
+
+  const onPointerMove = (event: PointerEvent<HTMLButtonElement>) => {
+    const drag = dragRef.current;
+    if (!drag || drag.pointerId !== (event.pointerId ?? 1)) return;
+    const hovered = coordAtPoint(event.clientX, event.clientY);
+    const crossedCell = hovered !== null && !sameCoord(hovered, drag.startCoord);
+    const movedEnough = Math.hypot(event.clientX - drag.startX, event.clientY - drag.startY) >= 6;
+    if (!drag.dragging && !crossedCell && !movedEnough) return;
+    drag.dragging = true;
+    onShipDrag?.({ shipId: drag.shipId, offset: drag.offset, hovered });
+  };
+
+  const onPointerUp = (event: PointerEvent<HTMLButtonElement>) => {
+    const drag = dragRef.current;
+    if (!drag || drag.pointerId !== (event.pointerId ?? 1)) return;
+    dragRef.current = null;
+    if (drag.dragging) {
+      suppressFollowingClick();
+      onShipDrop?.({
+        shipId: drag.shipId,
+        offset: drag.offset,
+        hovered: coordAtPoint(event.clientX, event.clientY),
+      });
+      onShipDrag?.(null);
+    }
+  };
+
+  const onPointerCancel = (event: PointerEvent<HTMLButtonElement>) => {
+    const drag = dragRef.current;
+    if (!drag || drag.pointerId !== (event.pointerId ?? 1)) return;
+    dragRef.current = null;
+    if (drag.dragging) {
+      suppressFollowingClick();
+      onShipDrag?.(null);
+    }
+  };
 
   const moveFocus = (event: KeyboardEvent, coord: Coord) => {
     const delta = ARROWS[event.key];
@@ -87,6 +194,7 @@ export function Board({
         role="group"
         aria-label={title}
         data-testid={testId}
+        ref={boardRef}
         onMouseLeave={() => onCellHover?.(null)}
       >
         <div className="board__water" aria-hidden="true" />
@@ -110,6 +218,7 @@ export function Board({
             placement={ship}
             variant={isShipSunk(board, ship.shipId) ? 'sunk' : 'afloat'}
             revealSunk={revealSunk && isShipSunk(board, ship.shipId)}
+            dragging={draggingShipId === ship.shipId}
           />
         ))}
         {[...shots.values()].map((shot) => {
@@ -124,9 +233,11 @@ export function Board({
           const state = cellState(board, shots.get(index));
           const unavailable = !active || isCellUnavailable(state);
           const inPreview = previewKeys.has(index);
+          const moored = active && shipAt(board, coord) !== undefined;
           const classes = ['cell'];
           if (inPreview) classes.push(preview?.valid ? 'cell--preview-ok' : 'cell--preview-bad');
           if (state !== 'open') classes.push(`cell--${state}`);
+          if (moored) classes.push('cell--moored');
           return (
             <button
               key={index}
@@ -144,8 +255,18 @@ export function Board({
               data-state={state}
               onClick={() => {
                 setFocusKey(index);
+                if (suppressClick.current) {
+                  suppressClick.current = false;
+                  window.clearTimeout(suppressClickTimer.current);
+                  suppressClickTimer.current = undefined;
+                  return;
+                }
                 if (!unavailable) onCellActivate?.(coord);
               }}
+              onPointerDown={(event) => onPointerDown(event, coord)}
+              onPointerMove={onPointerMove}
+              onPointerUp={onPointerUp}
+              onPointerCancel={onPointerCancel}
               onMouseEnter={() => onCellHover?.(coord)}
               onFocus={() => onCellHover?.(coord)}
               onKeyDown={(event) => moveFocus(event, coord)}
