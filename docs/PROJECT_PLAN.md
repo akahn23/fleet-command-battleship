@@ -357,7 +357,8 @@ Then **stop for product-owner approval** before Milestone 2.
 5. On defeat, remaining enemy ships are revealed after the game ends.
 6. No persistence: refreshing the page starts a new game. (Saving a game in progress to localStorage is easy to add later if wanted.)
 7. Desktop-first. Mobile is fully functional, with boards stacked vertically.
-8. English only, no sound in M1. Optional muted-by-default sound could be an M2 idea.
+8. English only. Optional sound is off by default and available on computers only; after BUG-014,
+   the user requested that it be removed from coarse-pointer phones and tablets.
 
 **Risks and mitigations:**
 
@@ -422,4 +423,5 @@ M1 is complete when **all** of the following are true:
 - Combat effects and feedback, including fair battle logs, fleet status, and result-screen stats.
 - Reduced-motion support, covered through battle-phase effects in browser tests.
 
-Optional sound remains a future idea and is not implemented.
+Optional sound is off by default and available on computers only. At the user's request after
+BUG-014, the sound option and playback are removed on coarse-pointer phones and tablets.

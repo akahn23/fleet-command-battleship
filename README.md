@@ -30,9 +30,9 @@ header to open it again.
 4. A sunk enemy ship is revealed. The first side to sink the whole enemy fleet wins.
    **New Battle** starts over at any time.
 
-Use **Sound: On/Off** in the header for optional ambient music and hit/sink effects. Sound is off by
-default. The game is fully keyboard playable: Tab to a board, use the arrow keys to move, and press
-Enter to place or fire.
+Use **Sound: On/Off** in the header for optional ambient music and hit/sink effects on computers.
+Sound is off by default; phones and tablets have no sound. The game is fully keyboard playable:
+Tab to a board, use the arrow keys to move, and press Enter to place or fire.
 
 ## Computer opponent and battle feedback
 
