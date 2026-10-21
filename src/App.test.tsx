@@ -27,19 +27,35 @@ afterEach(() => {
 });
 
 function mockPointer(coarse: boolean) {
+  const listeners = new Set<(event: MediaQueryListEvent) => void>();
+  const query = {
+    matches: coarse,
+    media: '(pointer: coarse)',
+    onchange: null,
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    addEventListener: vi.fn((type: string, listener: (event: MediaQueryListEvent) => void) => {
+      if (type === 'change') listeners.add(listener);
+    }),
+    removeEventListener: vi.fn((type: string, listener: (event: MediaQueryListEvent) => void) => {
+      if (type === 'change') listeners.delete(listener);
+    }),
+    dispatchEvent: vi.fn(),
+  };
   Object.defineProperty(window, 'matchMedia', {
     configurable: true,
-    value: vi.fn((query: string) => ({
-      matches: query === '(pointer: coarse)' && coarse,
-      media: query,
-      onchange: null,
-      addListener: vi.fn(),
-      removeListener: vi.fn(),
-      addEventListener: vi.fn(),
-      removeEventListener: vi.fn(),
-      dispatchEvent: vi.fn(),
-    })),
+    value: vi.fn().mockReturnValue(query),
   });
+  return {
+    setCoarse(matches: boolean) {
+      query.matches = matches;
+    },
+    fireChange() {
+      listeners.forEach((listener) =>
+        listener({ matches: query.matches, media: query.media } as MediaQueryListEvent),
+      );
+    },
+  };
 }
 
 const SEED = 7;
@@ -189,6 +205,39 @@ describe('App: placement', () => {
       'true',
     );
     expect(createSoundscape).toHaveBeenCalledTimes(1);
+  });
+
+  it('updates sound availability as the primary pointer changes', () => {
+    const pointer = mockPointer(false);
+    renderGame();
+    fireEvent.click(screen.getByRole('button', { name: 'Sound: Off' }));
+    expect(createSoundscape).toHaveBeenCalledTimes(1);
+    expect(soundscapeStub.setEnabled).toHaveBeenNthCalledWith(1, true);
+
+    pointer.setCoarse(true);
+    act(() => pointer.fireChange());
+
+    expect(screen.queryByRole('button', { name: /^Sound:/ })).not.toBeInTheDocument();
+    expect(soundscapeStub.setEnabled).toHaveBeenNthCalledWith(2, false);
+    expect(localStorage.getItem('ravenfjord.sound')).toBe('1');
+
+    pointer.setCoarse(false);
+    act(() => pointer.fireChange());
+
+    expect(screen.getByRole('button', { name: 'Sound: On' })).toBeInTheDocument();
+    expect(soundscapeStub.setEnabled).toHaveBeenNthCalledWith(3, true);
+    expect(localStorage.getItem('ravenfjord.sound')).toBe('1');
+  });
+
+  it('hides sound without throwing when the pointer becomes coarse while sound is off', () => {
+    const pointer = mockPointer(false);
+    renderGame();
+
+    pointer.setCoarse(true);
+    expect(() => act(() => pointer.fireChange())).not.toThrow();
+
+    expect(screen.queryByRole('button', { name: /^Sound:/ })).not.toBeInTheDocument();
+    expect(createSoundscape).not.toHaveBeenCalled();
   });
 
   it('rejects an overlapping ship but allows touching ships', () => {
