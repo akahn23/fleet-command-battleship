@@ -28,6 +28,7 @@ describe('useBattleSounds', () => {
 
     const sounds: Soundscape = {
       setEnabled: vi.fn(),
+      unlock: vi.fn(),
       playHit: vi.fn(),
       playSink: vi.fn(),
       dispose: vi.fn(),

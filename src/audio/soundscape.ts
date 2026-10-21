@@ -1,5 +1,6 @@
 export interface Soundscape {
   setEnabled(on: boolean): void;
+  unlock(): void;
   playHit(): void;
   playSink(): void;
   dispose(): void;
@@ -8,6 +9,29 @@ export interface Soundscape {
 type AudioContextFactory = () => AudioContext;
 
 const SILENCE_LEVEL = 0.0001;
+
+function setAudioSessionType(type: 'auto' | 'playback') {
+  try {
+    if (typeof navigator === 'undefined') return;
+    const session = (navigator as Navigator & { audioSession?: { type: string } }).audioSession;
+    if (session) session.type = type;
+  } catch {
+    return;
+  }
+}
+
+function playSilentUnlockBuffer(context: AudioContext) {
+  try {
+    const buffer = context.createBuffer(1, 1, context.sampleRate);
+    const source = context.createBufferSource();
+    source.buffer = buffer;
+    source.connect(context.destination);
+    source.onended = () => source.disconnect();
+    source.start(0);
+  } catch {
+    return;
+  }
+}
 
 export function createSoundscape(
   ctxFactory: AudioContextFactory = () => new AudioContext(),
@@ -49,7 +73,7 @@ export function createSoundscape(
   const playNote = () => {
     if (!enabled || !context || !musicBus || context.state !== 'running') return;
     const now = context.currentTime;
-    const notes = [146.83, 164.81, 174.61, 196, 220, 246.94, 261.63, 293.66];
+    const notes = [293.66, 329.62, 349.22, 392, 440, 493.88, 523.26, 587.32];
     const oscillator = context.createOscillator();
     const envelope = context.createGain();
     const delay = context.createDelay(1);
@@ -82,7 +106,7 @@ export function createSoundscape(
   };
 
   const scheduleNote = () => {
-    if (!enabled || !context || context.state !== 'running') return;
+    if (noteTimer !== undefined || !enabled || !context || context.state !== 'running') return;
     const delay = 1600 + Math.random() * 1600;
     noteTimer = window.setTimeout(() => {
       noteTimer = undefined;
@@ -98,22 +122,27 @@ export function createSoundscape(
     effectsBus = ctx.createGain();
     master.gain.value = 0;
     musicBus.gain.value = 0.05;
-    effectsBus.gain.value = 0.22;
+    effectsBus.gain.value = 0.25;
     master.connect(ctx.destination);
     musicBus.connect(master);
     effectsBus.connect(master);
 
     const lowpass = ctx.createBiquadFilter();
+    const highShelf = ctx.createBiquadFilter();
     const droneGain = ctx.createGain();
     lowpass.type = 'lowpass';
-    lowpass.frequency.value = 600;
-    droneGain.gain.value = 0.09;
-    lowpass.connect(droneGain);
+    lowpass.frequency.value = 1200;
+    highShelf.type = 'highshelf';
+    highShelf.frequency.value = 300;
+    highShelf.gain.value = 12;
+    droneGain.gain.value = 0.2;
+    lowpass.connect(highShelf);
+    highShelf.connect(droneGain);
     droneGain.connect(musicBus);
 
     for (const [frequency, detune] of [
-      [73.42, -3],
-      [110, 3],
+      [146.83, -3],
+      [220, 3],
     ]) {
       const oscillator = ctx.createOscillator();
       oscillator.type = 'triangle';
@@ -189,7 +218,7 @@ export function createSoundscape(
     const thump = context.createOscillator();
     const thumpEnvelope = context.createGain();
     filter.type = 'lowpass';
-    filter.frequency.setValueAtTime(1800, now);
+    filter.frequency.setValueAtTime(2600, now);
     filter.frequency.exponentialRampToValueAtTime(180, now + duration);
     noiseEnvelope.gain.setValueAtTime(SILENCE_LEVEL, now);
     noiseEnvelope.gain.linearRampToValueAtTime(1, now + 0.012);
@@ -199,8 +228,8 @@ export function createSoundscape(
     filter.connect(noiseEnvelope);
     noiseEnvelope.connect(effectsBus);
     thump.type = 'sine';
-    thump.frequency.setValueAtTime(kind === 'sink' ? 70 : 90, now);
-    thump.frequency.exponentialRampToValueAtTime(kind === 'sink' ? 35 : 45, now + duration);
+    thump.frequency.setValueAtTime(kind === 'sink' ? 110 : 140, now);
+    thump.frequency.exponentialRampToValueAtTime(kind === 'sink' ? 50 : 60, now + duration);
     thumpEnvelope.gain.setValueAtTime(SILENCE_LEVEL, now);
     thumpEnvelope.gain.linearRampToValueAtTime(0.75, now + 0.012);
     thumpEnvelope.gain.exponentialRampToValueAtTime(SILENCE_LEVEL, now + duration);
@@ -226,12 +255,23 @@ export function createSoundscape(
       if (disposed) return;
       enabled = on;
       if (!on) {
+        setAudioSessionType('auto');
         stopScheduling();
         rampMaster(0, 0.2);
         if (context) suspendAfterFade();
         return;
       }
+      setAudioSessionType('playback');
+      const ctx = ensureContext();
+      if (ctx) playSilentUnlockBuffer(ctx);
       void resume();
+    },
+    unlock() {
+      if (!enabled || disposed) return;
+      setAudioSessionType('playback');
+      if (!context) return;
+      playSilentUnlockBuffer(context);
+      if (context.state !== 'running') void resume();
     },
     playHit() {
       playEffect('hit');
@@ -243,6 +283,7 @@ export function createSoundscape(
       if (disposed) return;
       disposed = true;
       enabled = false;
+      setAudioSessionType('auto');
       stopScheduling();
       if (suspendTimer !== undefined) window.clearTimeout(suspendTimer);
       suspendTimer = undefined;

@@ -1,8 +1,19 @@
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import { vi } from 'vitest';
 import App from './App';
 import { createGame, formatCoord, getShip, shipCells, type Coord } from './engine';
 import { PLACEMENT_ERRORS } from './ui/messages';
+import { vi } from 'vitest';
+
+const soundscapeStub = vi.hoisted(() => ({
+  setEnabled: vi.fn(),
+  unlock: vi.fn(),
+  playHit: vi.fn(),
+  playSink: vi.fn(),
+  dispose: vi.fn(),
+}));
+vi.mock('./audio/soundscape', () => ({
+  createSoundscape: vi.fn(() => soundscapeStub),
+}));
 
 const SEED = 7;
 
@@ -116,6 +127,21 @@ describe('App: placement', () => {
       'false',
     );
     expect(localStorage.getItem('ravenfjord.sound')).toBe('0');
+  });
+
+  it('unlocks an existing soundscape on app clicks when sound is enabled', () => {
+    localStorage.setItem('ravenfjord.sound', '1');
+    soundscapeStub.setEnabled.mockClear();
+    soundscapeStub.unlock.mockClear();
+    renderGame();
+    const title = screen.getByRole('heading', { level: 1, name: /ravenfjord/i });
+
+    fireEvent.click(title);
+    expect(soundscapeStub.setEnabled).toHaveBeenCalledWith(true);
+    fireEvent.click(title);
+
+    expect(soundscapeStub.unlock).toHaveBeenCalledTimes(1);
+    localStorage.setItem('ravenfjord.sound', '0');
   });
 
   it('rejects an overlapping ship but allows touching ships', () => {

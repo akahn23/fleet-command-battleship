@@ -38,7 +38,10 @@ class FakeOscillator extends FakeNode {
 class FakeBufferSource extends FakeNode {
   buffer: FakeBuffer | null = null;
   onended: (() => void) | null = null;
-  start() {}
+  startCount = 0;
+  start() {
+    this.startCount += 1;
+  }
   stop() {
     this.onended?.();
   }
@@ -47,11 +50,12 @@ class FakeBufferSource extends FakeNode {
 class FakeFilter extends FakeNode {
   type = 'lowpass';
   frequency = new FakeParam();
+  gain = new FakeParam();
 }
 
 class FakeBuffer {
   private readonly data: Float32Array;
-  constructor(length: number) {
+  constructor(readonly length: number) {
     this.data = new Float32Array(length);
   }
   getChannelData() {
@@ -81,9 +85,9 @@ class FakeAudioContext {
   createDelay() {
     return Object.assign(new FakeNode(), { delayTime: new FakeParam() });
   }
-  createBuffer() {
+  createBuffer(_channels: number, length: number) {
     this.bufferCount += 1;
-    return new FakeBuffer(550) as unknown as AudioBuffer;
+    return new FakeBuffer(length) as unknown as AudioBuffer;
   }
   createBufferSource() {
     const source = new FakeBufferSource();
@@ -107,7 +111,12 @@ class FakeAudioContext {
   }
 }
 
+const audioSessionDescriptor = Object.getOwnPropertyDescriptor(navigator, 'audioSession');
+
 afterEach(() => {
+  if (audioSessionDescriptor)
+    Object.defineProperty(navigator, 'audioSession', audioSessionDescriptor);
+  else Reflect.deleteProperty(navigator, 'audioSession');
   vi.useRealTimers();
   vi.restoreAllMocks();
 });
@@ -127,8 +136,10 @@ describe('createSoundscape', () => {
     soundscape.playHit();
     soundscape.playSink();
     expect(factory).toHaveBeenCalledTimes(1);
-    expect(context.bufferCount).toBe(1);
-    expect(context.bufferSources).toHaveLength(2);
+    expect(context.bufferCount).toBe(2);
+    expect(context.bufferSources).toHaveLength(3);
+    expect(context.bufferSources[0]?.buffer?.length).toBe(1);
+    expect(context.bufferSources[0]?.startCount).toBe(1);
 
     soundscape.dispose();
     expect(context.closeCount).toBe(1);
@@ -179,5 +190,62 @@ describe('createSoundscape', () => {
 
     if (previous) Object.defineProperty(document, 'hidden', previous);
     else Reflect.deleteProperty(document, 'hidden');
+  });
+
+  it('sets the audio session to playback while enabled and restores auto when disabled', async () => {
+    const session = { type: 'auto' };
+    Object.defineProperty(navigator, 'audioSession', { configurable: true, value: session });
+    const soundscape = createSoundscape(() => new FakeAudioContext() as unknown as AudioContext);
+
+    soundscape.setEnabled(true);
+    expect(session.type).toBe('playback');
+    soundscape.setEnabled(false);
+    expect(session.type).toBe('auto');
+    soundscape.setEnabled(true);
+    expect(session.type).toBe('playback');
+    soundscape.dispose();
+    expect(session.type).toBe('auto');
+  });
+
+  it('does not throw when the audio session API is absent', () => {
+    Object.defineProperty(navigator, 'audioSession', { configurable: true, value: undefined });
+    const soundscape = createSoundscape(() => new FakeAudioContext() as unknown as AudioContext);
+
+    expect(() => {
+      soundscape.setEnabled(true);
+      soundscape.setEnabled(false);
+      soundscape.dispose();
+    }).not.toThrow();
+  });
+
+  it.each(['suspended', 'interrupted'] as const)(
+    'resumes a %s context when unlocked by a user gesture',
+    async (state) => {
+      const context = new FakeAudioContext();
+      const soundscape = createSoundscape(() => context as unknown as AudioContext);
+      soundscape.setEnabled(true);
+      await Promise.resolve();
+      const initialResumeCount = context.resumeCount;
+
+      context.state = state as AudioContextState;
+      soundscape.unlock();
+      expect(context.resumeCount).toBe(initialResumeCount + 1);
+      await Promise.resolve();
+      expect(context.state).toBe('running');
+      expect(context.bufferSources.at(-1)?.buffer?.length).toBe(1);
+      soundscape.dispose();
+    },
+  );
+
+  it('does nothing when unlock is called while disabled', () => {
+    const context = new FakeAudioContext();
+    const factory = vi.fn(() => context as unknown as AudioContext);
+    const soundscape = createSoundscape(factory);
+
+    soundscape.unlock();
+
+    expect(factory).not.toHaveBeenCalled();
+    expect(context.bufferSources).toHaveLength(0);
+    soundscape.dispose();
   });
 });

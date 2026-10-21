@@ -118,7 +118,11 @@ export default function App({
   useEffect(() => () => soundscapeRef.current?.dispose(), []);
 
   const ensureSoundscape = () => {
-    if (!soundEnabled || soundscapeRef.current) return;
+    if (!soundEnabled) return;
+    if (soundscapeRef.current) {
+      soundscapeRef.current.unlock();
+      return;
+    }
     soundscapeRef.current = createSoundscape();
     soundscapeRef.current.setEnabled(true);
   };
